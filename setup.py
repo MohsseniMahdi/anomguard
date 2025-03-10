@@ -26,4 +26,3 @@ setup(name='packagename',
       # scripts=['scripts/packagename-run'],
       zip_safe=False)
 
-##This is my comment -Kanishk
