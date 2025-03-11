@@ -7,9 +7,9 @@ from colorama import Fore, Style
 from dateutil.parser import parse
 
 from sklearn.model_selection import train_test_split
-from anomgaurd.ml_logic.preprocessing import preprocessing_baseline
-from anomgaurd.ml_logic.model import initialize_model, train_model, evaluate_model
-from anomgaurd.ml_logic.registry import save_results, save_model
+from anomguard.ml_logic.preprocessing import preprocessing_baseline
+from anomguard.ml_logic.model import initialize_model, train_model, evaluate_model
+from anomguard.ml_logic.registry import save_results, save_model
 
 
 
