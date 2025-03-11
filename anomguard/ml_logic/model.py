@@ -1,7 +1,7 @@
 ## contains model details
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
-from sklearn
+
 
 
 def initiliaze_model():
