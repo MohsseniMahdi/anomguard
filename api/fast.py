@@ -1,5 +1,5 @@
 # TODO: Import your package, replace this by explicit imports of what you need
-from anomgaurd.main import predict
+from anomguard.interface.main_local import predict
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,16 +23,8 @@ def root():
 
 # Endpoint for https://your-domain.com/predict?input_one=154&input_two=199
 @app.get("/predict")
-def get_predict(input_one: float,
-            input_two: float):
-    # TODO: Do something with your input
-    # i.e. feed it to your model.predict, and return the output
-    # For a dummy version, just return the sum of the two inputs and the original inputs
-    prediction = float(input_one) + float(input_two)
-    return {
-        'prediction': prediction,
-        'inputs': {
-            'input_one': input_one,
-            'input_two': input_two
-        }
-    }
+def get_predict():
+
+
+
+    return { predict():'greet'}

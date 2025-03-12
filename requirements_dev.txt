@@ -11,7 +11,7 @@ ipykernel
 # data viz
 matplotlib
 seaborn
-colorama
+
 
 # jupyter
 jupyter-contrib-core==0.4.0
