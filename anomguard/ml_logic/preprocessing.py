@@ -60,6 +60,13 @@ def preprocessing_smote(X_train, X_test, y_train):
     # Define function for log transformation
     log_transformer = FunctionTransformer(lambda X: np.log1p(X), validate=False)
 
+    # Define cyclical encoding transformation
+    cyclical_transformer = FunctionTransformer(lambda X: np.column_stack((
+        np.sin(2 * np.pi * X / 24),
+        np.cos(2 * np.pi * X / 24)
+    )), validate=False)
+
+
     # Define pipeline for 'Amount' - first apply scaling, then log transform
     amount_pipeline = Pipeline([
         ('scaler', RobustScaler()),
@@ -68,16 +75,18 @@ def preprocessing_smote(X_train, X_test, y_train):
 
     # Define ColumnTransformer to apply transformations
     preprocessor = ColumnTransformer(transformers=[
-        ('time_scaler', RobustScaler(), ['Time']),  # Scale 'Time' only
-        ('amount_pipeline', amount_pipeline, ['Amount'])  # Apply scaling + log transform to 'Amount'
+    ('time_scaler', RobustScaler(), ['Time']),  # Scale 'Time' only
+    ('amount_pipeline', amount_pipeline, ['Amount']),  # Apply scaling + log transform to 'Amount'
+    ('hour_cyclical', cyclical_transformer, ['Hour'])  # Apply sine and cosine encoding to 'Hour'
     ], remainder='passthrough')  # Keep other columns unchanged
+
 
     # Apply the transformation pipeline
     X_train_transformed = preprocessor.fit_transform(X_train_smote)
     X_test_transformed = preprocessor.transform(X_test)
 
     # Convert back to DataFrame with proper column names
-    columns = ['Time', 'Log_Amount'] + [col for col in X_train_smote.columns if col not in ['Time', 'Amount']]
+    columns = ['Time', 'Log_Amount', 'Hour_sin', 'Hour_cos'] + [col for col in X_train_smote.columns if col not in ['Time', 'Amount', 'Hour']]    X_train_transformed = pd.DataFrame(X_train_transformed, columns=columns)
     X_train_transformed = pd.DataFrame(X_train_transformed, columns=columns)
     X_test_transformed = pd.DataFrame(X_test_transformed, columns=columns)
 
