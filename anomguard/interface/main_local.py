@@ -83,6 +83,10 @@ def load_raw_data():
 
     print("✅ Loaded successfully to BigQuery")
 
+def predict():
+   return str('Helllllo')
+
+
 if __name__ == '__main__':
     try:
 

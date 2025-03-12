@@ -23,7 +23,6 @@ clean:
 
 test_structure:
 	@bash tests/test_structure.sh
-
 #======================#
 #          API         #
 #======================#
