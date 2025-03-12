@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 
-GCP_PROJECT = "<your project id>" # TO COMPLETE
+GCP_PROJECT = os.environ.get("GCP_PPROJECT") # TO COMPLETE
 GCP_PROJECT_WAGON = "wagon-public-datasets"
 BQ_DATASET = "taxifare"
 BQ_REGION = "EU"

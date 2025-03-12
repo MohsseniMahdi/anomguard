@@ -43,7 +43,7 @@ def save_model(model: keras.Model = None) -> None:
 
     # Save model locally
     model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}.h5")
-    model.save(model_path)
+    pickle.dump(model, open(model_path, 'wb'))
 
     print("✅ Model saved locally")
 

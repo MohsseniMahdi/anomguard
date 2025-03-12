@@ -4,7 +4,7 @@ from sklearn.dummy import DummyClassifier
 
 
 
-def initiliaze_model():
+def initialize_model():
     """
     Initialize the model
     """
@@ -23,5 +23,5 @@ def train_model(model, X_train, y_train):
 
 
 def evaluate_model(model, X_val, y_val):
-    score = model.evaluate(X_val, y_val, scoring = ['recall'])
+    score = model.score(X_val, y_val)
     return score

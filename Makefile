@@ -2,8 +2,13 @@
 # Install, clean, test #
 #======================#
 
+
 install_requirements:
 	@pip install -r requirements.txt
+
+reinstall_package:
+	@pip uninstall -y anomgaurd || :
+	@pip install -e .
 
 install:
 	@pip install . -U
@@ -22,6 +27,9 @@ test_structure:
 #======================#
 #          API         #
 #======================#
+run_preprocess:
+
+	python -c 'from anomguard.interface.main_local import preprocess_train; preprocess_train()'
 
 run_api:
 	uvicorn api.fast:app --reload --port 8000
