@@ -7,7 +7,7 @@ install_requirements:
 	@pip install -r requirements.txt
 
 reinstall_package:
-	@pip uninstall -y anomgaurd || :
+	@pip uninstall -y anomguard || :
 	@pip install -e .
 
 install:
@@ -42,7 +42,8 @@ run_api:
 gcloud-set-project:
 	gcloud config set project $(GCP_PROJECT)
 
-
+gcloud-load-raw-data:
+	python -c 'from anomguard.interface.main_local import load_raw_data; load_raw_data()'
 
 #======================#
 #         Docker       #
