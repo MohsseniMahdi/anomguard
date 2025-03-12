@@ -13,3 +13,11 @@ Document here for users who want to setup the package locally
 
 # Usage
 Document main functionalities of the package here
+
+
+# installation
+
+make install requirments
+
+
+make run preprocess
