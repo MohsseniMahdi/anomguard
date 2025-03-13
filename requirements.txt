@@ -24,3 +24,5 @@ uvicorn
 imblearn
 pyarrow
 colorama
+
+xgboost == 2.1.4

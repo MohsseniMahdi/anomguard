@@ -87,6 +87,10 @@ def preprocessing_smote(X_train, X_test, y_train):
 
     # Convert back to DataFrame with proper column names
     columns = ['Time', 'Log_Amount', 'Hour_sin', 'Hour_cos'] + [col for col in X_train_smote.columns if col not in ['Time', 'Amount', 'Hour']]
+<<<<<<< HEAD
+=======
+    X_train_transformed = pd.DataFrame(X_train_transformed, columns=columns)
+>>>>>>> 9461b471906fa81d0270bca9aefdec49527c4bd5
     X_train_transformed = pd.DataFrame(X_train_transformed, columns=columns)
     X_test_transformed = pd.DataFrame(X_test_transformed, columns=columns)
 
