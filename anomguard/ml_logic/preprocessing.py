@@ -52,7 +52,7 @@ def preprocessing_smote(X_train, X_test, y_train):
         tuple: A tuple containing the transformed training and testing data.
 
     '''
-    X_train['Hour'] = (X_train['Time'] // 3600) % 24
+
     # Apply SMOTE to the training set
     smote = SMOTE(sampling_strategy=0.2, random_state=42)  # Adjust ratio if needed
     X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
