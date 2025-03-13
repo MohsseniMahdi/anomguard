@@ -18,6 +18,4 @@ Document main functionalities of the package here
 # installation
 
 make install requirments
-
-
 make run preprocess

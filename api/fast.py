@@ -1,10 +1,10 @@
-# TODO: Import your package, replace this by explicit imports of what you need
-from anomguard.interface.main_local import predict
-
+from anomguard.ml_logic import model, preprocessing, data
 from fastapi import FastAPI, File, UploadFile, HTTPException
 import pandas as pd
-import os
+import io
+from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
+
 from anomguard.ml_logic.registry import load_model
 from anomguard.ml_logic.preprocessing import preprocessing_smote
 #from sklearn.dummy import DummyClassifier
@@ -15,6 +15,7 @@ from io import BytesIO
 import json
 
 from typing import Annotated
+
 
 app = FastAPI()
 app.state.model  = load_model()
@@ -28,12 +29,12 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# Endpoint for https://your-domain.com/
 @app.get("/")
 def root():
     return {
         'message': "Hi, running!"
     }
+
 
 # Endpoint for https://your-domain.com/predict?input_one=154&input_two=199
 @app.post("/predict")

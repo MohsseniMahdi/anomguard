@@ -46,7 +46,7 @@ def preprocess_train():
         # Save it locally to accelerate the next queries!
         # data.to_csv(data_query_cache_path, header=True, index=False)
 
-
+    data['Hour'] = (data['Time'] // 3600) % 24
 
     ## split the data
     X = data.drop(columns = ['Class'])
