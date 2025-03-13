@@ -58,7 +58,7 @@ def preprocess_train():
 
 
     ## performing basic preporccsing
-    X_train_transformed, X_val_transformed = preprocessing_baseline(X_train, X_val, y_train)
+    X_train_transformed, X_val_transformed = preprocessing_baseline(X_train, X_test)
 
 
 
