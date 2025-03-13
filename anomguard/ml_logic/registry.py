@@ -6,7 +6,7 @@ import pickle
 from typing import Union
 from colorama import Fore, Style
 from tensorflow import keras
-from sklearn import mode
+
 from google.cloud import storage
 from anomguard.params import *
 from sklearn.base import BaseEstimator
@@ -103,7 +103,7 @@ def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
         print(Fore.BLUE + f"\nLoad latest model from GCS..." + Style.RESET_ALL)
 
         client = storage.Client()
-        blobs = list(client.get_bucket(BUCKET_NAME).list_blobs(prefix="model"))
+        blobs = list(client.get_bucket(BUCKET_NAME).list_blobs(prefix="model")) # changed to models
 
         try:
             latest_blob = max(blobs, key=lambda x: x.updated)
@@ -113,7 +113,7 @@ def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
             try:
                 latest_model = keras.models.load_model(latest_model_path_to_save)
             except:
-                latest_model = pickle.load(open(most_recent_model_path_on_disk), 'rb')
+                latest_model = pickle.load(open(latest_model_path_to_save), 'rb')
 
             print("✅ Latest model downloaded from cloud storage")
 

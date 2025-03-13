@@ -25,3 +25,4 @@ uvicorn
 #Kanishk
 pyarrow
 colorama
+imblearn

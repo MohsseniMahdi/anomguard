@@ -1,5 +1,5 @@
 # TODO: Import your package, replace this by explicit imports of what you need
-from anomguard.interface.main import predict
+from anomguard.interface.main import pred
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 import pandas as pd
@@ -35,5 +35,3 @@ def get_predict(X_pred: pd.DataFrame = None):
     X_pred_transform = preprocessing_smote(X_pred)
     y_pred = model.predict(X_pred_transform)
     return y_pred
-
-
