@@ -2,6 +2,20 @@
 import numpy as np
 import pandas as pd
 
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, RobustScaler
+from imblearn.over_sampling import SMOTE
+from imblearn.over_sampling import SMOTE, BorderlineSMOTE
+from imblearn.under_sampling import TomekLinks
+from imblearn.combine import SMOTETomek
+from collections import Counter
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from scipy.stats.mstats import winsorize
+
+
 #Package from sklearn
 from sklearn.preprocessing import RobustScaler, FunctionTransformer
 from sklearn.pipeline import Pipeline, make_pipeline
