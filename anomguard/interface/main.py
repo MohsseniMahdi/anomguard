@@ -15,7 +15,7 @@ from anomguard.params import *
 from sklearn.model_selection import train_test_split
 from anomguard.ml_logic.preprocessing import preprocessing_baseline
 from anomguard.ml_logic.model import initialize_model, train_model, evaluate_model
-from anomguard.ml_logic.registry import save_results, save_model
+from anomguard.ml_logic.registry import save_results, save_model, load_model
 from anomguard.ml_logic.data import load_data_to_bq
 
 
@@ -83,8 +83,9 @@ def load_raw_data():
 
     print("✅ Loaded successfully to BigQuery")
 
-def predict():
-   return str('Helllllo')
+def pred(X_pred):
+   model = load_model()
+   model.predict()
 
 
 if __name__ == '__main__':

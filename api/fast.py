@@ -1,14 +1,15 @@
 # TODO: Import your package, replace this by explicit imports of what you need
-from anomguard.interface.main_local import predict
+from anomguard.interface.main import predict
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 import pandas as pd
 import os
 from fastapi.middleware.cors import CORSMiddleware
-# from taxifare.ml_logic.registry import  load_model
-# from taxifare.ml_logic.preprocessor import preprocess_features
+from anomguard.ml_logic.registry import load_model
+from anomguard.ml_logic.preprocessing import preprocessing_smote
 
 app = FastAPI()
+app.state.model  = load_model()
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,8 +28,12 @@ def root():
 
 # Endpoint for https://your-domain.com/predict?input_one=154&input_two=199
 @app.get("/predict")
-def get_predict():
+def get_predict(X_pred: pd.DataFrame = None):
+
+    model = app.state.model
+    assert model is not None
+    X_pred_transform = preprocessing_smote(X_pred)
+    y_pred = model.predict(X_pred_transform)
+    return y_pred
 
 
-
-    return { predict():'greet'}
