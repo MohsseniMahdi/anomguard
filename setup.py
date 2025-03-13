@@ -15,9 +15,9 @@ if os.path.isfile('requirements_dev.txt'):
     requirements.extend([x.strip() for x in content if 'git+' not in x])
 
 
-setup(name='packagename',
+setup(name='anomguard',
       version="0.0.1",
-      description="Project Description",
+      description="creditcard fraud detection and Stock market anamolies detection",
       packages=find_packages(),
       install_requires=requirements,
       test_suite='tests',
@@ -25,4 +25,3 @@ setup(name='packagename',
       include_package_data=True,
       # scripts=['scripts/packagename-run'],
       zip_safe=False)
-

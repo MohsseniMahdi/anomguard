@@ -2,8 +2,13 @@
 # Install, clean, test #
 #======================#
 
+
 install_requirements:
 	@pip install -r requirements.txt
+
+reinstall_package:
+	@pip uninstall -y anomguard || :
+	@pip install -e .
 
 install:
 	@pip install . -U
@@ -18,10 +23,12 @@ clean:
 
 test_structure:
 	@bash tests/test_structure.sh
-
 #======================#
 #          API         #
 #======================#
+run_preprocess:
+
+	python -c 'from anomguard.interface.main_local import preprocess_train; preprocess_train()'
 
 run_api:
 	uvicorn api.fast:app --reload --port 8000
@@ -34,7 +41,8 @@ run_api:
 gcloud-set-project:
 	gcloud config set project $(GCP_PROJECT)
 
-
+gcloud-load-raw-data:
+	python -c 'from anomguard.interface.main_local import load_raw_data; load_raw_data()'
 
 #======================#
 #         Docker       #

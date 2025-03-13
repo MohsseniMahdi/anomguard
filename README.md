@@ -15,5 +15,7 @@ Document here for users who want to setup the package locally
 Document main functionalities of the package here
 
 
+# installation
+
 make install requirments
 make run preprocess
