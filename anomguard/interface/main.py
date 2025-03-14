@@ -24,7 +24,7 @@ from anomguard.ml_logic.data import load_data_to_bq
 def preprocess_train():
     query = f"""
         SELECT *
-        FROM `{GCP_PROJECT_WAGON}`.{BQ_DATASET}.raw_data
+        FROM `{GCP_PROJECT}`.{BQ_DATASET}.raw_data
 
         """
 
