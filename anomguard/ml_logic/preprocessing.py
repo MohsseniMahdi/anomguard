@@ -121,7 +121,7 @@ def preprocessing_smote(data):
 
     X_test_transformed = pd.DataFrame(X_test_transformed, columns=columns)
 
-    return X_train_transformed, X_test_transformed, y_train_smote, , X_val, y_val
+    return X_train_transformed, X_test_transformed, y_train_smote, X_val, y_val
 
 
 
