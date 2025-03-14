@@ -45,7 +45,11 @@ def save_model(model:  Union[keras.Model, BaseEstimator] = None) -> None:
     timestamp = time.strftime("%Y%m%d-%H%M%S")
 
     # Save model locally
-    model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}P{PRE_PROCCESING_VERSION}M{MODEL_VERSION}.h5")
+
+    # model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}P{PRE_PROCCESING_VERSION}M{MODEL_VERSION}.h5")
+
+    model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}.pkl") #this should be changed to h5 when using DL
+
     pickle.dump(model, open(model_path, 'wb'))
 
     print("✅ Model saved locally")
@@ -103,6 +107,7 @@ def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
         print(Fore.BLUE + f"\nLoad latest model from GCS..." + Style.RESET_ALL)
 
         client = storage.Client()
+
         blobs = list(client.get_bucket(BUCKET_NAME).list_blobs(prefix="model")) # changed to models
 
         try:
@@ -115,10 +120,13 @@ def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
             except:
                 latest_model = pickle.load(open(latest_model_path_to_save), 'rb')
 
+
             print("✅ Latest model downloaded from cloud storage")
 
             return latest_model
         except:
+
+
             print(f"\n❌ No model found in GCS bucket {BUCKET_NAME}")
 
             return None

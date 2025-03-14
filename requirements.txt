@@ -21,8 +21,9 @@ googleapis-common-protos==1.56.4
 # API
 fastapi
 uvicorn
-
-#Kanishk
+imblearn
 pyarrow
 colorama
 imblearn
+
+xgboost == 2.1.4
