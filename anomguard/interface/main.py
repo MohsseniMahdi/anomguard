@@ -3,7 +3,6 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
 from colorama import Fore, Style
 from dateutil.parser import parse
 from google.cloud import bigquery
@@ -13,8 +12,8 @@ from google.cloud import bigquery
 from anomguard.params import *
 
 from sklearn.model_selection import train_test_split
-from anomguard.ml_logic.preprocessing import preprocessing_baseline, preprocessing_V3
-from anomguard.ml_logic.model import initialize_model, train_model, evaluate_model
+from anomguard.ml_logic.preprocessing import preprocessing_baseline
+from anomguard.ml_logic.model import *
 from anomguard.ml_logic.registry import save_results, save_model, load_model
 from anomguard.ml_logic.data import load_data_to_bq
 
@@ -46,29 +45,34 @@ def preprocess_train():
         # Save it locally to accelerate the next queries!
         # data.to_csv(data_query_cache_path, header=True, index=False)
 
-
-
-
-
     ## performing basic preporccsing
-    if PRE_PROCCESING_VERSION == "1.0":
-        X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
-    elif PRE_PROCCESING_VERSION == 2.0:
-        pass
-    elif PRE_PROCCESING_VERSION == 3.0:
-        X_test_transformed_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_V3(data)
-    else:
-        print("Wrong version selected")
-
+    X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
 
     model = None
-    model = initialize_model()
+
+    if MODEL_VERSION == "base":
+        model = initialize_model()
+    elif MODEL_VERSION == "logistic":
+        model = initialize_logistic()
+    elif MODEL_VERSION == "xgb":
+        model = initialize_xgboost()
+    else:
+        return print("Model version not defined")
+
+    print("✅Model loaded")
+
     model = train_model(model, X_train_transformed, y_train)
+    print("✅ Model trained")
+
     score = evaluate_model(model, X_val, y_val)
+    print("✅ Model evaluated")
 
-    params = dict()
+    pr_auc = evaluate_pr_auc(model, X_test_transformed, y_val)
+    print(f"PR AUC score: {pr_auc}")
 
-    save_results(params= params,metrics=dict(score=score))
+    params = dict() #TO BE ADDED?
+
+    save_results(params=params, metrics=dict(score=score))
     save_model(model=model)
 
     print("✅ preprocess_and_train() done")
