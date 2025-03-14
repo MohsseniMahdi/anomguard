@@ -45,16 +45,17 @@ run_preprocess:
 run_api:
 	uvicorn api.fast:app --reload --port 8000
 
+
 create_models_folder:
-mkdir models/models
-mkdir models/metrics
-mkdir models/params
+	mkdir models/models
+	mkdir models/metrics
+	mkdir models/params
 
 reset_model_folders:
-rm -rf models
-mkdir models/models
-mkdir models/metrics
-mkdir models/params
+	rm -rf models
+	mkdir models/models
+	mkdir models/metrics
+	mkdir models/params
 
 #======================#
 #          GCP         #
