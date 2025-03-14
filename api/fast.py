@@ -131,11 +131,11 @@ async def get_predict(file: UploadFile = File(...)):
     assert model is not None
 
     test = df.drop(columns='Class')
-    # X_pred_transform = preprocessing_smote(df)
-    # y_pred = model.predict(X_pred_transform)
-    # return { "prediction": y_pred }
+    X_pred_transform = preprocessing_baseline_features(df)
+    y_pred = model.predict(X_pred_transform)
     print("******/n", model)
-    return "CreditCard is Fraud"
-# json.loads(df.to_json(orient='records'))
+    # return json.loads(df.to_json(orient='records'))
+    return { "prediction": y_pred }
+
     #     # return y_pred
     #     # return {"data_preview": df.head()}  # Return sample of DataFrame
