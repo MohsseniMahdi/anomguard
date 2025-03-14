@@ -34,10 +34,10 @@ run_pred:
 # run_evaluate:
 # 	python -c 'from anomguard.interface.main import evaluate; evaluate()'
 
-
+# run_test_prep_v3
+# 	python -c 'from anomguard.ml_logic.preprcessing import preprocessing_V3; preprocessing_V3()'
 
 run_preprocess:
-
 	python -c 'from anomguard.interface.main import preprocess_train; preprocess_train()'
 #======================#
 #          API         #
