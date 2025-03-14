@@ -46,19 +46,25 @@ async def get_predict(file: UploadFile = File(...)):
     content = file.file.read()
     print('content', content)
     df = pd.read_csv(BytesIO(content))
+    print('======', df.head())
 
     # try:
     model = app.state.model
-    assert model is not None
-    print("******/n", model)
 
+    assert model is not None
+    print("******/n", df.columns)
+    X = df.drop(columns='Unnamed: 0')
+    print("******/n", X.columns)
     # test = df.drop(columns='Class')
-    X_pred_transform = preprocessing_baseline_features(df)
+    X_pred_transform = preprocessing_baseline_features(X)
+
     y_pred = model.predict(X_pred_transform)
     # return json.loads(df.to_json(orient='records'))
-    return { "prediction": y_pred }
+    # return { "prediction": y_pred }
+    print("******!!!!!******/n", y_pred)
 
-    #     # return y_pred
+    return { "prediction": y_pred.tolist() if hasattr(y_pred, 'tolist') else y_pred }
+
     #     # return {"data_preview": df.head()}  # Return sample of DataFrame
 
 
