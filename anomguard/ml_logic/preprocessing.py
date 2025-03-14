@@ -25,47 +25,61 @@ from sklearn.compose import ColumnTransformer
 #Package from imblearn
 from imblearn.over_sampling import SMOTE
 
-def preprocessing_baseline(X_train, X_test):
+def preprocessing_baseline(data):
 
     '''
     This function performs baseline preprocessing using Robust Scaler on the input data.
 
     Args:
-        X_train (pd.DataFrame): The training data.
-        X_test (pd.DataFrame): The testing data.
+        data (pd.DataFrame): The training data.
 
     Returns:
         tuple: A tuple containing the transformed training and testing data.
 
     '''
 
+    data['Hour'] = (data['Time'] // 3600) % 24
 
+    ## split the data
+    X = data.drop(columns = ['Class'])
+    y = data['Class']
+
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.25, random_state=42)
+    X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
     rb_scaler = RobustScaler()
     X_train_transformed = rb_scaler.fit_transform(X_train)
     X_test_transformed = rb_scaler.transform(X_test)
 
-    return X_train_transformed, X_test_transformed
+    return X_train_transformed, X_test_transformed, y_train, X_val, y_val
 
 
 
 
 
-def preprocessing_smote(X_train, X_test, y_train):
+def preprocessing_smote(data):
 
     '''
     This function performs baseline preprocessing using Robust Scaler on the smote data.
 
     Args:
-        X_train (pd.DataFrame): The training data.
-        X_test (pd.DataFrame): The testing data.
-        y_train (pd.Series): The target variable for the training data.
+        data (pd.DataFrame): The  data.
+
 
 
     Returns:
         tuple: A tuple containing the transformed training and testing data.
 
     '''
+    data['Hour'] = (data['Time'] // 3600) % 24
+
+    ## split the data
+    X = data.drop(columns = ['Class'])
+    y = data['Class']
+
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.25, random_state=42)
+    X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+
 
     # Apply SMOTE to the training set
     smote = SMOTE(sampling_strategy=0.2, random_state=42)  # Adjust ratio if needed
@@ -107,19 +121,18 @@ def preprocessing_smote(X_train, X_test, y_train):
 
     X_test_transformed = pd.DataFrame(X_test_transformed, columns=columns)
 
-    return X_train_transformed, X_test_transformed, y_train_smote
+    return X_train_transformed, X_test_transformed, y_train_smote, , X_val, y_val
 
 
 
-def preprocessing_V3(X_train, X_test, y_train):
+def preprocessing_V3(data):
 
     '''
     This function performs baseline preprocessing using Robust Scaler on the smote data.
 
     Args:
-        X_train (pd.DataFrame): The training data.
-        X_test (pd.DataFrame): The testing data.
-        y_train (pd.Series): The target variable for the training data.
+        data (pd.DataFrame): The data.
+
 
 
     Returns:
@@ -127,8 +140,8 @@ def preprocessing_V3(X_train, X_test, y_train):
 
     '''
 
-    #df = data.copy()
-    df =  = pd.read_csv('../raw_data/creditcard.csv')
+    df = data.copy()
+
     duplicate_rows = df.duplicated().sum()
     df = df.drop_duplicates().reset_index(drop=True)
 
@@ -142,7 +155,8 @@ def preprocessing_V3(X_train, X_test, y_train):
     X = df.drop("Class", axis=1)
     y = df["Class"]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+    X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
     print("Original class distribution befor SMOTE in first part:", Counter(y))
 
@@ -201,4 +215,4 @@ def preprocessing_V3(X_train, X_test, y_train):
     # Check final class distribution
     print("After Tomek Links:", Counter(y_final))
 
-    return X_final, X_test_scaled, y_final
+    return X_final, X_test_scaled, y_final, X_val, y_val
