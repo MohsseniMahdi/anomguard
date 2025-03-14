@@ -15,7 +15,7 @@ from anomguard.params import *
 from sklearn.model_selection import train_test_split
 from anomguard.ml_logic.preprocessing import preprocessing_baseline
 from anomguard.ml_logic.model import initialize_model, train_model, evaluate_model
-from anomguard.ml_logic.registry import save_results, save_model
+from anomguard.ml_logic.registry import save_results, save_model, load_model
 from anomguard.ml_logic.data import load_data_to_bq
 
 
@@ -46,19 +46,19 @@ def preprocess_train():
         # Save it locally to accelerate the next queries!
         # data.to_csv(data_query_cache_path, header=True, index=False)
 
-    data['Hour'] = (data['Time'] // 3600) % 24
+"""    data['Hour'] = (data['Time'] // 3600) % 24
 
     ## split the data
     X = data.drop(columns = ['Class'])
     y = data['Class']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=42)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=42)"""
 
 
 
     ## performing basic preporccsing
-    X_train_transformed, X_val_transformed = preprocessing_baseline(X_train, X_test)
+    X_train_transformed, X_val_transformed = preprocessing_baseline(data)
 
 
 
@@ -83,8 +83,9 @@ def load_raw_data():
 
     print("✅ Loaded successfully to BigQuery")
 
-def predict():
-   return str('Helllllo')
+def pred(X_pred):
+   model = load_model()
+   model.predict()
 
 
 if __name__ == '__main__':

@@ -3,10 +3,13 @@ import os
 import time
 import pickle
 
+from typing import Union
 from colorama import Fore, Style
 from tensorflow import keras
+
 from google.cloud import storage
 from anomguard.params import *
+from sklearn.base import BaseEstimator
 
 
 def save_results(params: dict, metrics: dict) -> None:
@@ -32,7 +35,7 @@ def save_results(params: dict, metrics: dict) -> None:
 
     print("✅ Results saved locally")
 
-def save_model(model: keras.Model = None) -> None:
+def save_model(model:  Union[keras.Model, BaseEstimator] = None) -> None:
     """
     Persist trained model locally on the hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
     - if MODEL_TARGET='gcs', also persist it in your bucket on GCS at "models/{timestamp}.h5" --> unit 02 only
@@ -42,7 +45,11 @@ def save_model(model: keras.Model = None) -> None:
     timestamp = time.strftime("%Y%m%d-%H%M%S")
 
     # Save model locally
+
+    # model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}P{PRE_PROCCESING_VERSION}M{MODEL_VERSION}.h5")
+
     model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}.pkl") #this should be changed to h5 when using DL
+
     pickle.dump(model, open(model_path, 'wb'))
 
     print("✅ Model saved locally")
@@ -62,7 +69,7 @@ def save_model(model: keras.Model = None) -> None:
 
     return None
 
-def load_model(stage="Production") -> keras.Model:
+def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
     """
     Return a saved model:
     - locally (latest one in alphabetical order)
@@ -86,8 +93,10 @@ def load_model(stage="Production") -> keras.Model:
         most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
 
         print(Fore.BLUE + f"\nLoad latest model from disk..." + Style.RESET_ALL)
-
-        latest_model = keras.models.load_model(most_recent_model_path_on_disk)
+        try:
+            latest_model = keras.models.load_model(most_recent_model_path_on_disk)
+        except:
+            latest_model = pickle.load(open(most_recent_model_path_on_disk), 'rb')
 
         print("✅ Model loaded from local disk")
 
@@ -98,20 +107,19 @@ def load_model(stage="Production") -> keras.Model:
         print(Fore.BLUE + f"\nLoad latest model from GCS..." + Style.RESET_ALL)
 
         client = storage.Client()
-        blobs = list(client.get_bucket(BUCKET_NAME).list_blobs(prefix="models"))
+
+        blobs = list(client.get_bucket(BUCKET_NAME).list_blobs(prefix="model")) # changed to models
 
         try:
             latest_blob = max(blobs, key=lambda x: x.updated)
-
-            latest_model_path_to_save = os.path.join(latest_blob.name)
-            print(latest_model_path_to_save)
-
-
+            latest_model_path_to_save = os.path.join(LOCAL_REGISTRY_PATH, latest_blob.name,'models')
             latest_blob.download_to_filename(latest_model_path_to_save)
 
-            latest_model = pickle.load(open(latest_model_path_to_save, 'rb'))  #this is for dummy model
+            try:
+                latest_model = keras.models.load_model(latest_model_path_to_save)
+            except:
+                latest_model = pickle.load(open(latest_model_path_to_save), 'rb')
 
-            #latest_model = keras.models.load_model(latest_model_path_to_save) # this is for final model
 
             print("✅ Latest model downloaded from cloud storage")
 
