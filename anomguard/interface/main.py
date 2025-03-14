@@ -58,15 +58,15 @@ def preprocess_train():
         model = initialize_xgboost()
     else:
         return print("Model version not defined")
-    
+
     print("✅Model loaded")
-    
+
     model = train_model(model, X_train_transformed, y_train)
     print("✅ Model trained")
-    
+
     score = evaluate_model(model, X_val, y_val)
     print("✅ Model evaluated")
-    
+
     pr_auc = evaluate_pr_auc(model, X_test_transformed, y_val)
     print(f"PR AUC score: {pr_auc}")
 
