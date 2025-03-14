@@ -24,7 +24,7 @@ from anomguard.ml_logic.data import load_data_to_bq
 def preprocess_train():
     query = f"""
         SELECT *
-        FROM `{GCP_PROJECT_WAGON}`.{BQ_DATASET}.raw_data
+        FROM `{GCP_PROJECT}`.{BQ_DATASET}.raw_data
 
         """
 
@@ -51,7 +51,7 @@ def preprocess_train():
 
 
     ## performing basic preporccsing
-     X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
+    X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
 
 
 
