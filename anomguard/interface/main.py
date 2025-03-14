@@ -24,7 +24,7 @@ from anomguard.ml_logic.data import load_data_to_bq
 def preprocess_train():
     query = f"""
         SELECT *
-        FROM `{GCP_PROJECT_WAGON}`.{BQ_DATASET}.raw_data
+        FROM `{GCP_PROJECT}`.{BQ_DATASET}.raw_data
 
         """
 
@@ -46,19 +46,12 @@ def preprocess_train():
         # Save it locally to accelerate the next queries!
         # data.to_csv(data_query_cache_path, header=True, index=False)
 
-"""    data['Hour'] = (data['Time'] // 3600) % 24
 
-    ## split the data
-    X = data.drop(columns = ['Class'])
-    y = data['Class']
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=42)"""
 
 
 
     ## performing basic preporccsing
-    X_train_transformed, X_val_transformed = preprocessing_baseline(data)
+    X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
 
 
 
@@ -66,7 +59,7 @@ def preprocess_train():
     model = None
     model = initialize_model()
     model = train_model(model, X_train_transformed, y_train)
-    score = evaluate_model(model, X_val_transformed, y_val)
+    score = evaluate_model(model, X_val, y_val)
 
     params = dict()
 
