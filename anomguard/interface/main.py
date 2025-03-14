@@ -51,7 +51,7 @@ def preprocess_train():
 
 
     ## performing basic preporccsing
-    X_train_transformed, X_val_transformed = preprocessing_baseline(data)
+     X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
 
 
 
@@ -59,7 +59,7 @@ def preprocess_train():
     model = None
     model = initialize_model()
     model = train_model(model, X_train_transformed, y_train)
-    score = evaluate_model(model, X_val_transformed, y_val)
+    score = evaluate_model(model, X_val, y_val)
 
     params = dict()
 
