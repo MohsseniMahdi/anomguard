@@ -54,6 +54,26 @@ def preprocessing_baseline(data):
     return X_train_transformed, X_test_transformed, y_train, X_val, y_val
 
 
+def preprocessing_baseline_features(X):
+
+    '''
+    This function performs baseline preprocessing using Robust Scaler on the input data.
+
+    Args:
+        data (pd.DataFrame): The training data.
+
+    Returns:
+        tuple: A tuple containing the transformed training and testing data.
+
+    '''
+
+    X['Hour'] = (X['Time'] // 3600) % 24
+
+    rb_scaler = RobustScaler()
+    X_transformed = rb_scaler.fit_transform(X)
+
+
+    return X_transformed
 
 
 
