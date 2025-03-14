@@ -46,9 +46,9 @@ def save_model(model:  Union[keras.Model, BaseEstimator] = None) -> None:
 
     # Save model locally
 
-    # model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}P{PRE_PROCCESING_VERSION}M{MODEL_VERSION}.h5")
+    model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}P{PRE_PROCCESING_VERSION}M{MODEL_VERSION}.h5")
 
-    model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}.pkl") #this should be changed to h5 when using DL
+    # model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}.pkl") #this should be changed to h5 when using DL
 
     pickle.dump(model, open(model_path, 'wb'))
 
@@ -112,16 +112,22 @@ def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
 
         try:
             latest_blob = max(blobs, key=lambda x: x.updated)
-            latest_model_path_to_save = os.path.join(LOCAL_REGISTRY_PATH, latest_blob.name,'models')
+            print(f"\nLoad latest model from GCS: {latest_blob.name}")
+            latest_model_path_to_save = os.path.join(LOCAL_REGISTRY_PATH, latest_blob.name)
             latest_blob.download_to_filename(latest_model_path_to_save)
+            print(latest_model_path_to_save)
 
             try:
-                latest_model = keras.models.load_model(latest_model_path_to_save)
+                # latest_model = keras.models.load_model(latest_model_path_to_save)
+
+                latest_blob.download_to_filename(latest_model_path_to_save)
+
+                latest_model = pickle.load(open(latest_model_path_to_save, 'rb'))
             except:
-                latest_model = pickle.load(open(latest_model_path_to_save), 'rb')
+                # latest_model = pickle.load(open(latest_model_path_to_save), 'rb')
 
 
-            print("✅ Latest model downloaded from cloud storage")
+                print("✅ Latest model downloaded from cloud storage")
 
             return latest_model
         except:

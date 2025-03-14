@@ -6,7 +6,7 @@ from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 
 from anomguard.ml_logic.registry import load_model
-from anomguard.ml_logic.preprocessing import preprocessing_smote
+from anomguard.ml_logic.preprocessing import preprocessing_baseline_features
 #from sklearn.dummy import DummyClassifier
 from io import BytesIO
 #import raw_data
@@ -42,7 +42,42 @@ async def get_predict(file: UploadFile = File(...)):
 #     """
 #     Endpoint to receive a file, process it with the predict function, and return the result.
 #     """
-    # if not file:
+
+    content = file.file.read()
+    print('content', content)
+    df = pd.read_csv(BytesIO(content))
+
+    # try:
+    model = app.state.model
+    assert model is not None
+    print("******/n", model)
+
+    # test = df.drop(columns='Class')
+    X_pred_transform = preprocessing_baseline_features(df)
+    y_pred = model.predict(X_pred_transform)
+    # return json.loads(df.to_json(orient='records'))
+    return { "prediction": y_pred }
+
+    #     # return y_pred
+    #     # return {"data_preview": df.head()}  # Return sample of DataFrame
+
+
+
+ # print("------\n", df)
+    # return json.loads(df.to_json(orient='records'))
+    # df.to_json(orient='records')
+    # data=BytesIO(content)
+    # df = pd.read_csv(data)
+    # data.close()
+    # file.file.close
+
+    # df = pd.read_csv('test.csv')
+
+
+
+
+
+   # if not file:
     #     raise HTTPException(status_code=400, detail="No file provided")
 
     # # # Check file type (optional, you can add more robust checks here)
@@ -77,65 +112,3 @@ async def get_predict(file: UploadFile = File(...)):
 #         #     df = pd.read_json(file.file)
 #         # else:
 #         #     raise HTTPException(status_code=500, detail=f"unknown file type {file_extension}")
-
-#         # 3. Call your prediction function
-#         # Assuming 'predict' takes a DataFrame as input:
-#         # prediction_result = predict(df)
-
-#         # 4. Remove the temporary file
-#         # os.remove(temp_file_path)
-#         # model = app.state.model
-#         # assert model is not None
-#         # X_pred_transform = preprocessing_smote(df)
-#         # y_pred = model.predict(X_pred_transform)
-#         # return { "prediction": df }
-
-#     except Exception as e:
-#         return { "prediction":"prediction_result Error" }
-#     #     # 6. Handle any errors that might occur
-#     #     if "temp_file_path" in locals():
-#     #       os.remove(temp_file_path)
-#     #     raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
-# # get_predict(file="abc.csv")
-
-    # try:
-    #     # Read the uploaded file into Pandas DataFrame
-    #     content = await file.read()  # Read file contents as bytes
-    #     decoded_content = content.decode("ISO-8859-1")
-    #     if file_extension == "csv":
-    #         df = pd.read_csv()  # Decode and read as CSV
-    #         df = pd.read_csv(io.StringIO(decoded_content), header=None)
-
-        # elif file_extension == "txt":
-        #     df = pd.read_table(io.StringIO(content.decode("utf-8")))  # Read as tab-separated file
-        # elif file_extension == "json":
-        #     df = pd.read_json(io.StringIO(content.decode("utf-8")))  # Read as JSON
-        # else:
-        #     raise HTTPException(status_code=500, detail=f"Unknown file type {file_extension}")
-        # # return {"data_preview": df}
-    content = file.file.read()
-    print(content)
-    df = pd.read_csv(BytesIO(content))
-    # print("------\n", df)
-    # return json.loads(df.to_json(orient='records'))
-    # df.to_json(orient='records')
-    # data=BytesIO(content)
-    # df = pd.read_csv(data)
-    # data.close()
-    # file.file.close
-
-    # df = pd.read_csv('test.csv')
-
-    # try:
-    model = app.state.model
-    assert model is not None
-
-    test = df.drop(columns='Class')
-    X_pred_transform = preprocessing_baseline_features(df)
-    y_pred = model.predict(X_pred_transform)
-    print("******/n", model)
-    # return json.loads(df.to_json(orient='records'))
-    return { "prediction": y_pred }
-
-    #     # return y_pred
-    #     # return {"data_preview": df.head()}  # Return sample of DataFrame
