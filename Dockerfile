@@ -16,7 +16,7 @@ COPY anomguard anomguard
 COPY api api
 COPY requirements.txt requirements.txt
 COPY setup.py setup.py
-# COPY credentials.json credentials.json
+COPY anomguard_key.json anomguard_key.json
 
 # Install everything
 RUN pip install --no-cache-dir --upgrade pip

@@ -3,10 +3,8 @@ import numpy as np
 
 
 GCP_PROJECT = os.environ.get("GCP_PPROJECT") # TO COMPLETE
-GCP_PROJECT_WAGON = "wagon-public-datasets"
-BQ_DATASET = "taxifare"
-BQ_REGION = "EU"
-MODEL_TARGET = "local"
+# GCP_PROJECT_WAGON = "wagon-public-datasets"
+
 
 MODEL_TARGET = os.environ.get("MODEL_TARGET")
 GCP_PROJECT = os.environ.get("GCP_PROJECT")

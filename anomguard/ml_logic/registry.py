@@ -107,7 +107,7 @@ def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
 
         try:
             latest_blob = max(blobs, key=lambda x: x.updated)
-            latest_model_path_to_save = os.path.join(LOCAL_REGISTRY_PATH, latest_blob.name)
+            latest_model_path_to_save = os.path.join(LOCAL_REGISTRY_PATH, latest_blob.name,'models')
             latest_blob.download_to_filename(latest_model_path_to_save)
 
             try:

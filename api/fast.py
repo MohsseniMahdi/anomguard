@@ -28,10 +28,10 @@ def root():
 
 # Endpoint for https://your-domain.com/predict?input_one=154&input_two=199
 @app.get("/predict")
-def get_predict(X_pred: pd.DataFrame = None):
+def get_predict(X):
 
     model = app.state.model
     assert model is not None
-    X_pred_transform = preprocessing_smote(X_pred)
+    X_pred_transform = preprocessing_smote(X)
     y_pred = model.predict(X_pred_transform)
     return y_pred
