@@ -5,8 +5,10 @@ import io
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 
+from anomguard.params import *
+
 from anomguard.ml_logic.registry import load_model
-from anomguard.ml_logic.preprocessing import preprocessing_baseline_features
+from anomguard.ml_logic.preprocessing import preprocessing_baseline_features, preprocessing_V3_features
 #from sklearn.dummy import DummyClassifier
 from io import BytesIO
 #import raw_data
