@@ -128,55 +128,14 @@ async def get_predict(file: UploadFile = File(...)):
 
     # try:
     model = app.state.model
-    # assert model is not None
+    assert model is not None
+
+    test = df.drop(columns='Class')
     # X_pred_transform = preprocessing_smote(df)
     # y_pred = model.predict(X_pred_transform)
     # return { "prediction": y_pred }
     print("******/n", model)
-    return json.loads(df.to_json(orient='records'))
+    return "CreditCard is Fraud"
+# json.loads(df.to_json(orient='records'))
     #     # return y_pred
     #     # return {"data_preview": df.head()}  # Return sample of DataFrame
-
-    # except Exception as e:
-    #     raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
-
-# async def create_file(file: Annotated[bytes, File()]):
-#     return {"file_size": len(file)}
-
-
-    # if not file:
-    #     raise HTTPException(status_code=400, detail="No file provided")
-
-    # allowed_filetypes = ["csv", "txt", "json"]
-    # file_extension = file.filename.split(".")[-1].lower()
-
-    # if file_extension not in allowed_filetypes:
-    #     raise HTTPException(status_code=400, detail="Invalid file type. Allowed types are: csv, txt, json")
-
-    # try:
-    #     # Read file contents
-    #     content = await file.read()
-    #     decoded_content = content.decode("utf-8")  # Try UTF-8 decoding first
-
-    #     logging.info(f"File {file.filename} received. Size: {len(content)} bytes.")
-    #     logging.info(f"First 500 chars:\n{decoded_content[:500]}")  # Print first 500 chars for debugging
-
-    #     # Convert bytes to DataFrame
-    #     if file_extension == "csv":
-    #         df = pd.read_csv(io.StringIO(decoded_content))  # Read as CSV
-    #     elif file_extension == "txt":
-    #         df = pd.read_table(io.StringIO(decoded_content))  # Read as TXT
-    #     elif file_extension == "json":
-    #         df = pd.read_json(io.StringIO(decoded_content))  # Read as JSON
-    #     else:
-    #         raise HTTPException(status_code=500, detail=f"Unknown file type {file_extension}")
-
-    #     logging.info(f"DataFrame Loaded: \n{df.head()}")  # Log first few rows
-
-    #     return {"data_preview": df.head().to_dict()}  # Returning preview for debugging
-
-    # except UnicodeDecodeError:
-    #     raise HTTPException(status_code=500, detail="File encoding issue. Try a different encoding like ISO-8859-1.")
-    # except Exception as e:
-    #     logging.error(f"Error processing file: {str(e)}")
-    #     raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
