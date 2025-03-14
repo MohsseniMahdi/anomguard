@@ -23,16 +23,38 @@ clean:
 
 test_structure:
 	@bash tests/test_structure.sh
+
+
+# run_train:
+# 	python -c 'from anomguard.interface.main import train; train()'
+
+run_pred:
+	python -c 'from anomguard.interface.main import pred; pred()'
+
+# run_evaluate:
+# 	python -c 'from anomguard.interface.main import evaluate; evaluate()'
+
+
+
+run_preprocess:
+
+	python -c 'from anomguard.interface.main import preprocess_train; preprocess_train()'
 #======================#
 #          API         #
 #======================#
-run_preprocess:
-
-	python -c 'from anomguard.interface.main_local import preprocess_train; preprocess_train()'
-
 run_api:
 	uvicorn api.fast:app --reload --port 8000
 
+create_models_folder:
+mkdir models/models
+mkdir models/metrics
+mkdir models/params
+
+reset_model_folders:
+rm -rf models
+mkdir models/models
+mkdir models/metrics
+mkdir models/params
 
 #======================#
 #          GCP         #
@@ -42,7 +64,7 @@ gcloud-set-project:
 	gcloud config set project $(GCP_PROJECT)
 
 gcloud-load-raw-data:
-	python -c 'from anomguard.interface.main_local import load_raw_data; load_raw_data()'
+	python -c 'from anomguard.interface.main import load_raw_data; load_raw_data()'
 
 #======================#
 #         Docker       #
