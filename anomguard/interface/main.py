@@ -3,7 +3,6 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
 from colorama import Fore, Style
 from dateutil.parser import parse
 from google.cloud import bigquery
@@ -50,26 +49,28 @@ def preprocess_train():
     X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
 
     model = None
-    
-    if MODEL_VERSION == 0.0:
-        model = initialize_model()
 
-    elif MODEL_VERSION == 1.0:
+    if MODEL_VERSION == "base":
+        model = initialize_model()
+    elif MODEL_VERSION == "logistic":
         model = initialize_logistic()
-    
-    elif MODEL_VERSION == 2.0:
+    elif MODEL_VERSION == "xgb":
         model = initialize_xgboost()
-        
     else:
         return print("Model version not defined")
     
+    print("✅Model loaded")
+    
     model = train_model(model, X_train_transformed, y_train)
+    print("✅ Model trained")
+    
     score = evaluate_model(model, X_val, y_val)
+    print("✅ Model evaluated")
     
     pr_auc = evaluate_pr_auc(model, X_test_transformed, y_val)
     print(f"PR AUC score: {pr_auc}")
 
-    params = dict()
+    params = dict() #TO BE ADDED?
 
     save_results(params=params, metrics=dict(score=score))
     save_model(model=model)
