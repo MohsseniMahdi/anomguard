@@ -13,7 +13,7 @@ from google.cloud import bigquery
 from anomguard.params import *
 
 from sklearn.model_selection import train_test_split
-from anomguard.ml_logic.preprocessing import preprocessing_baseline
+from anomguard.ml_logic.preprocessing import preprocessing_baseline, preprocessing_V3
 from anomguard.ml_logic.model import initialize_model, train_model, evaluate_model
 from anomguard.ml_logic.registry import save_results, save_model, load_model
 from anomguard.ml_logic.data import load_data_to_bq
@@ -51,9 +51,14 @@ def preprocess_train():
 
 
     ## performing basic preporccsing
-    X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
-
-
+    if PRE_PROCCESING_VERSION == "1.0":
+        X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
+    elif PRE_PROCCESING_VERSION == 2.0:
+        pass
+    elif PRE_PROCCESING_VERSION == 3.0:
+        X_test_transformed_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_V3(data)
+    else:
+        print("Wrong version selected")
 
 
     model = None

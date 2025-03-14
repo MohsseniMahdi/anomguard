@@ -10,7 +10,8 @@ MODEL_TARGET = os.environ.get("MODEL_TARGET")
 GCP_PROJECT = os.environ.get("GCP_PROJECT")
 # GCP_PROJECT_WAGON = os.environ.get("GCP_PROJECT_WAGON")
 
-PRE_PROCCESING_VERSION =  os.environ.get("PRE_PROCCESING_VERSION")
+PRE_PROCCESING_VERSION =  os.environ.get("PRE_PROCESSING_VERSION")
+
 MODEL_VERSION = os.environ.get("MODEL_VERSION")
 
 GCP_REGION = os.environ.get("GCP_REGION")
