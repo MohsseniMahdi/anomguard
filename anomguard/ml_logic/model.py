@@ -31,14 +31,6 @@ def initialize_xgboost():
     )
     return model
     
-if MODEL_VERSION == 0.0:
-
-elif MODEL_VERSION == 1.0:
-    
-elif MODEL_VERSION == 2.0:
-
- 
-
 def train_model(model, X_train, y_train):
     model.fit(X_train, y_train)
     return model
@@ -49,29 +41,19 @@ def train_model(model, X_train, y_train):
 #     """
 #     pass
 
-def train_model(model, X_train, y_train):
-    model.fit(X_train, y_train)
-    return model
-
-
 def evaluate_model(model, X_val, y_val):
     score = model.score(X_val, y_val)
     return score
 
-
-        # recall_test = recall_score(y_test, y_pred_test)
-
-        # # PR-AUC (Precision-Recall AUC) на train
-        # y_probs_train = model.predict_proba(X_train_transformed)[:, 1]
-        # precision, recall_curve, _ = precision_recall_curve(y_train_smote, y_probs_train)
-        # pr_auc_train = auc(recall_curve, precision)
+def evaluate_recall(y_test, y_pred):
+    recall_test = recall_score(y_test, y_pred)  
+    return {"recall": recall_test}    
         
-        # # PR-AUC на test
-        # y_probs_test = model.predict_proba(X_test_transformed)[:, 1]
-        # precision, recall_curve, _ = precision_recall_curve(y_test, y_probs_test)
-        # pr_auc_test = auc(recall_curve, precision)
         
-        # return {
-        #     "recall_train": recall_train, "recall_test": recall_test,
-        #     "pr_auc_train": pr_auc_train, "pr_auc_test": pr_auc_test
-        # }    
+
+def evaluate_pr_auc(model, X_test_transformed,y_test):
+        y_pred_proba = model.predict_proba(X_test_transformed)[:, 1]
+        precision, recall_curve, _ = precision_recall_curve(y_test, y_pred_proba)
+        pr_auc_test = auc(recall_curve, precision)
+        
+        return {"pr_auc_test": pr_auc_test}    

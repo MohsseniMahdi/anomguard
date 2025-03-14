@@ -2,10 +2,9 @@ import os
 
 GCP_PROJECT = os.environ.get("GCP_PPROJECT") # TO COMPLETE
 # GCP_PROJECT_WAGON = "wagon-public-datasets"
-
-MODEL_TARGET = os.environ.get("MODEL_TARGET")
 # GCP_PROJECT_WAGON = os.environ.get("GCP_PROJECT_WAGON")
 
+MODEL_TARGET = os.environ.get("MODEL_TARGET")
 PRE_PROCCESING_VERSION =  os.environ.get("PRE_PROCCESING_VERSION")
 MODEL_VERSION = os.environ.get("MODEL_VERSION")
 
