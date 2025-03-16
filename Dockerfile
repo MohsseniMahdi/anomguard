@@ -18,6 +18,7 @@ COPY requirements.txt requirements.txt
 COPY setup.py setup.py
 COPY anomguard_key.json anomguard_key.json
 
+
 # Install everything
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
