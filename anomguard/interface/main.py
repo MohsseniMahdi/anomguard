@@ -12,7 +12,7 @@ from google.cloud import bigquery
 from anomguard.params import *
 
 from sklearn.model_selection import train_test_split
-from anomguard.ml_logic.preprocessing import preprocessing_baseline, preprocessing_V3
+from anomguard.ml_logic.preprocessing import preprocessing_baseline, preprocessing_V2, preprocessing_V3
 from anomguard.ml_logic.model import *
 from anomguard.ml_logic.registry import save_results, save_model, load_model
 from anomguard.ml_logic.data import load_data_to_bq
@@ -47,15 +47,15 @@ def preprocess_train():
 
     ## performing basic preporccsing
     # X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
-
+    
     print("PRE_PROCCESING_VERSION", PRE_PROCCESING_VERSION)
         ## performing basic preporccsing
     if PRE_PROCCESING_VERSION == "V1":
-        X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
+        X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val = preprocessing_baseline(data)
     elif PRE_PROCCESING_VERSION == "V2":
-        pass
+        X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val = preprocessing_V2(data)
     elif PRE_PROCCESING_VERSION == "V3":
-        X_test_transformed_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_V3(data)
+        X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val = preprocessing_V3(data)
     else:
         print("Wrong version selected")
 
@@ -75,10 +75,10 @@ def preprocess_train():
     model = train_model(model, X_train_transformed, y_train)
     print("✅ Model trained")
 
-    score = evaluate_model(model, X_val, y_val)
+    score = evaluate_model(model, X_val_transformed, y_val)
     print("✅ Model evaluated")
 
-    pr_auc = evaluate_pr_auc(model, X_test_transformed, y_val)
+    pr_auc = evaluate_pr_auc(model, X_test_transformed, y_test)
     print(f"PR AUC score: {pr_auc}")
 
     params = dict() #TO BE ADDED?

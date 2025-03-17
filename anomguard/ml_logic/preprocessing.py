@@ -81,7 +81,7 @@ def preprocessing_baseline_features(X):
 
 
 
-def preprocessing_smote(data):
+def preprocessing_V2(data):
 
     '''
     This function performs baseline preprocessing using Robust Scaler on the smote data.
@@ -138,6 +138,7 @@ def preprocessing_smote(data):
     X_train_transformed = preprocessor.fit_transform(X_train_smote)
     X_test_transformed = preprocessor.transform(X_test)
     X_val_transformed = preprocessor.transform(X_val)
+
     # Convert back to DataFrame with proper column names
 
     columns = ['Time', 'Log_Amount', 'Hour_sin', 'Hour_cos'] + [col for col in X_train_smote.columns if col not in ['Time', 'Amount', 'Hour']]
@@ -147,8 +148,52 @@ def preprocessing_smote(data):
 
     X_val_transformed = pd.DataFrame(X_val_transformed, columns=columns)
 
+
     return X_train_transformed, X_test_transformed, X_val_transformed, y_train_smote, y_test, y_val
 
+def preprocessing_V2_features(X):
+    """
+    Performs preprocessing_V2 transformations on the input DataFrame.
+
+    Args:
+        X (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        pd.DataFrame: The transformed DataFrame.
+    """
+
+    X['Hour'] = (X['Time'] // 3600) % 24
+
+    # Define function for log transformation
+    log_transformer = FunctionTransformer(lambda X: np.log1p(X), validate=False)
+
+    # Define cyclical encoding transformation
+    cyclical_transformer = FunctionTransformer(lambda X: np.column_stack((
+        np.sin(2 * np.pi * X / 24),
+        np.cos(2 * np.pi * X / 24)
+    )), validate=False)
+
+    # Define pipeline for 'Amount' - first apply scaling, then log transform
+    amount_pipeline = Pipeline([
+        ('scaler', RobustScaler()),
+        ('log_transform', log_transformer)
+    ])
+
+    # Define ColumnTransformer to apply transformations
+    preprocessor = ColumnTransformer(transformers=[
+        ('time_scaler', RobustScaler(), ['Time']),  # Scale 'Time' only
+        ('amount_pipeline', amount_pipeline, ['Amount']),  # Apply scaling + log transform to 'Amount'
+        ('hour_cyclical', cyclical_transformer, ['Hour'])  # Apply sine and cosine encoding to 'Hour'
+    ], remainder='passthrough')  # Keep other columns unchanged
+
+    # Apply the transformation pipeline
+    X_transformed = preprocessor.fit_transform(X)
+
+    # Convert back to DataFrame with proper column names
+    columns = ['Time', 'Log_Amount', 'Hour_sin', 'Hour_cos'] + [col for col in X.columns if col not in ['Time', 'Amount', 'Hour']]
+    X_transformed = pd.DataFrame(X_transformed, columns=columns)
+
+    return X_transformed
 
 
 def preprocessing_V3(data):
@@ -254,8 +299,7 @@ def preprocessing_V3(data):
     print("preprocessing version 3 finished.")
 
 
-    return X_final, X_test_scaled, X_val_scaled, X_val_scaled, y_final, y_test, y_val
-
+    return X_final, X_test_scaled, X_val_scaled, y_final, y_test, y_val
 
 
 def preprocessing_V3_features(X):# -> tuple[Any | DataFrame | ... | Series[Any], Any, Any | Dat...:
