@@ -51,10 +51,11 @@ def preprocessing_baseline(data):
     rb_scaler = RobustScaler()
     X_train_transformed = rb_scaler.fit_transform(X_train)
     X_test_transformed = rb_scaler.transform(X_test)
+    X_val_transformed = rb_scaler.transform(X_val)
 
     print("Baseline Preprocessing finished")
 
-    return X_train_transformed, X_test_transformed, y_train, X_val, y_val
+    return X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val
 
 
 def preprocessing_baseline_features(X):
