@@ -1,5 +1,8 @@
 ## contains model details
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import VotingClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 from xgboost import XGBClassifier
 from sklearn.metrics import recall_score, precision_recall_curve, auc
 from sklearn.dummy import DummyClassifier
@@ -16,7 +19,7 @@ def initialize_model():
 
 def initialize_logistic():
         """
-        Initialize the model
+        Initialize the logistic regression model
         """
         model = LogisticRegression(
             class_weight="balanced",
@@ -26,13 +29,40 @@ def initialize_logistic():
         return model
 
 def initialize_xgboost():
-    """XGBoost."""
+    """Initialize the XGBoost model"""
     model = XGBClassifier(
         objective="binary:logistic",
         scale_pos_weight=1,
         eval_metric="logloss",
         random_state=42,
     )
+    return model
+
+def initialize_ensemble(voting_type='soft', max_iter = 1000):
+    """Initialize the ensemble model (Voting Classifier).
+
+    Args:
+        voting_type (str): 'hard' or 'soft' voting. Defaults to 'soft'.
+        max_iter (int): maximum number of iterations.
+
+    Returns:
+        VotingClassifier: The initialized VotingClassifier model.
+    """
+    log_reg_pipe = Pipeline([('scaler', StandardScaler()), ('log_reg', LogisticRegression(random_state=42, max_iter = max_iter))])
+    xgb = XGBClassifier(
+        objective="binary:logistic",
+        scale_pos_weight=1,
+        eval_metric="logloss",
+        random_state=42,
+    )
+
+    if voting_type == 'hard':
+        model = VotingClassifier(estimators=[('lr', log_reg_pipe), ('xgb', xgb)], voting='hard')
+    elif voting_type == 'soft':
+        model = VotingClassifier(estimators=[('lr', log_reg_pipe), ('xgb', xgb)], voting='soft')
+    else:
+        raise ValueError("voting_type must be 'hard' or 'soft'")
+
     return model
 
 def train_model(model, X_train, y_train):
@@ -49,7 +79,8 @@ def evaluate_model(model, X_val, y_val):
     score = model.score(X_val, y_val)
     return score
 
-def evaluate_recall(y_test, y_pred):
+def evaluate_recall(model, X_test_transformed, y_test):
+    y_pred = model.predict(X_test_transformed)
     recall_test = recall_score(y_test, y_pred)
     return {"recall": recall_test}
 
