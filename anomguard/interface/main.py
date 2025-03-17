@@ -47,7 +47,7 @@ def preprocess_train():
 
     ## performing basic preporccsing
     # X_train_transformed, X_test_transformed, y_train, X_val, y_val = preprocessing_baseline(data)
-    data = pd.read_csv('raw_data/creditcard.csv')
+    
     print("PRE_PROCCESING_VERSION", PRE_PROCCESING_VERSION)
         ## performing basic preporccsing
     if PRE_PROCCESING_VERSION == "V1":
