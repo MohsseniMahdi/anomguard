@@ -148,6 +148,7 @@ def preprocessing_V2(data):
 
     X_val_transformed = pd.DataFrame(X_val_transformed, columns=columns)
 
+
     return X_train_transformed, X_test_transformed, X_val_transformed, y_train_smote, y_test, y_val
 
 def preprocessing_V2_features(X):
@@ -299,7 +300,6 @@ def preprocessing_V3(data):
 
 
     return X_final, X_test_scaled, X_val_scaled, y_final, y_test, y_val
-
 
 
 def preprocessing_V3_features(X):# -> tuple[Any | DataFrame | ... | Series[Any], Any, Any | Dat...:
