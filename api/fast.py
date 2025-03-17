@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from anomguard.params import *
 
 from anomguard.ml_logic.registry import load_model
-from anomguard.ml_logic.preprocessing import preprocessing_baseline_features, preprocessing_V3_features
+from anomguard.ml_logic.preprocessing import preprocessing_baseline_features, preprocessing_V2_features, preprocessing_V3_features
 #from sklearn.dummy import DummyClassifier
 from io import BytesIO
 #import raw_data
@@ -64,7 +64,7 @@ async def get_predict(file: UploadFile = File(...)):
     if PRE_PROCCESING_VERSION == "V1":
         X_pred_transform = preprocessing_baseline_features(X)
     elif PRE_PROCCESING_VERSION == "V2":
-        pass
+        X_pred_transform = preprocessing_V2_features(X)
     elif PRE_PROCCESING_VERSION == "V3":
         X_pred_transform = preprocessing_V3_features(X)
     else:

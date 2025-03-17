@@ -32,7 +32,6 @@ def initialize_xgboost():
         scale_pos_weight=1,
         eval_metric="logloss",
         random_state=42,
-        use_label_encoder=False
     )
     return model
 
