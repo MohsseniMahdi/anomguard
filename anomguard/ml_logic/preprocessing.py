@@ -277,26 +277,26 @@ def preprocessing_V3_features(X):# -> tuple[Any | DataFrame | ... | Series[Any],
     #y_train_smote= pd.DataFrame(y_train_smote)
 
     scaler = RobustScaler()
-    X_smote.iloc[:, 1:29] = scaler.fit_transform(df.iloc[:, 1:29])
+    df.iloc[:, 1:29] = scaler.fit_transform(df.iloc[:, 1:29])
 
     columns_to_winsorize = ["V8", "V18", "V21", "V27", "V28"]
     for col in columns_to_winsorize:
-        X_smote[col] = winsorize(X_smote[col], limits=[0.01, 0.01])
+        df[col] = winsorize(df[col], limits=[0.01, 0.01])
 
-    X_smote['V20'] = np.log(X_smote['V20'].clip(lower=0.0001))
-    X_smote['V23'] = np.log(X_smote['V23'].clip(lower=0.0001))
+    df['V20'] = np.log(df['V20'].clip(lower=0.0001))
+    df['V23'] = np.log(df['V23'].clip(lower=0.0001))
 
 
-    X_smote["Amount"] = np.log1p(X_smote["Amount"])  # log(1 + Amount) to handle zero values
+    df["Amount"] = np.log1p(df["Amount"])  # log(1 + Amount) to handle zero values
 
     scaler = StandardScaler()
-    X_smote["Amount"] = scaler.fit_transform(X_smote[["Amount"]])
+    df["Amount"] = scaler.fit_transform(df[["Amount"]])
 
-    X_smote["Amount"] = winsorize(X_smote["Amount"], limits=[0.01, 0.01])
+    df["Amount"] = winsorize(df["Amount"], limits=[0.01, 0.01])
 
     # Ensure all features are scaled if necessary (PCA is sensitive to feature scaling)
     scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_smote)
+    X_scaled = scaler.fit_transform(df)
 
 
     """n_components = 24
