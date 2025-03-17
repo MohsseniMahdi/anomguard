@@ -187,7 +187,7 @@ print("\nClass distribution after SMOTE:\n", pd.Series(y_train_smote).value_coun
 
 This combined strategy ensures that the training data is both balanced and cleansed of noisy samples, resulting in a more accurate and reliable fraud detection model.
 
-
+test berta ....
 
 
 
