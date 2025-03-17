@@ -48,7 +48,7 @@ def save_model(model:  Union[keras.Model, BaseEstimator] = None) -> None:
 
     model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}P{PRE_PROCCESING_VERSION}M{MODEL_VERSION}.h5")
 
-    # model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}.pkl") #this should be changed to h5 when using DL
+    # model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}P{PRE_PROCCESING_VERSION}M{MODEL_VERSION}.pkl") #this should be changed to h5 when using DL
 
     pickle.dump(model, open(model_path, 'wb'))
 
@@ -79,7 +79,7 @@ def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
     Return None (but do not Raise) if no model is found
 
     """
-
+    local_model_directory = os.path.join(LOCAL_REGISTRY_PATH)
     if MODEL_TARGET == "local":
         print(Fore.BLUE + f"\nLoad latest model from local registry..." + Style.RESET_ALL)
 
@@ -112,26 +112,20 @@ def load_model(stage="Production") -> Union[keras.Model, BaseEstimator]:
 
         try:
             latest_blob = max(blobs, key=lambda x: x.updated)
-            print(f"\nLoad latest model from GCS: {latest_blob.name}")
-            latest_model_path_to_save = os.path.join(LOCAL_REGISTRY_PATH, latest_blob.name)
+            print(f"\n latest model from GCS: {latest_blob.name}")
+            # Now proceed to download the model
+            latest_model_path_to_save = os.path.join(latest_blob.name)
             latest_blob.download_to_filename(latest_model_path_to_save)
-            print(latest_model_path_to_save)
-
             try:
-                # latest_model = keras.models.load_model(latest_model_path_to_save)
-
-                latest_blob.download_to_filename(latest_model_path_to_save)
-
-                latest_model = pickle.load(open(latest_model_path_to_save, 'rb'))
+                latest_model = keras.models.load_model(latest_model_path_to_save)
+                print("✅ Model loaded using TensorFlow!")
             except:
-                # latest_model = pickle.load(open(latest_model_path_to_save), 'rb')
-
-
-                print("✅ Latest model downloaded from cloud storage")
+                with open(latest_model_path_to_save, 'rb') as f:
+                    latest_model = pickle.load(f)
+                print("✅ Model loaded using Pickle!")
 
             return latest_model
         except:
-
 
             print(f"\n❌ No model found in GCS bucket {BUCKET_NAME}")
 
