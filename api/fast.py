@@ -58,7 +58,18 @@ async def get_predict(file: UploadFile = File(...)):
     X = df.drop(columns='Unnamed: 0')
     print("******/n", X.columns)
     # test = df.drop(columns='Class')
-    X_pred_transform = preprocessing_baseline_features(X)
+
+    print("PRE_PROCCESING_of_Features_VERSION", PRE_PROCCESING_VERSION)
+        ## performing basic preporccsing
+    if PRE_PROCCESING_VERSION == "V1":
+        X_pred_transform = preprocessing_baseline_features(X)
+    elif PRE_PROCCESING_VERSION == "V2":
+        pass
+    elif PRE_PROCCESING_VERSION == "V3":
+        X_pred_transform = preprocessing_V3_features(X)
+    else:
+        print("Wrong version of preprocessing for prediction is selected")
+
 
     y_pred = model.predict(X_pred_transform)
     # return json.loads(df.to_json(orient='records'))
