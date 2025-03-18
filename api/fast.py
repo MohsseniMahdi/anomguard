@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from anomguard.params import *
 
 from anomguard.ml_logic.registry import load_model
-from anomguard.ml_logic.preprocessing import preprocessing_baseline_features, preprocessing_V2_features, preprocessing_V3_features,
+from anomguard.ml_logic.preprocessing import preprocessing_baseline_features, preprocessing_V2_features, preprocessing_V3_features
 from anomguard.ml_logic.preprocessing import preprocessing_V4_features, preprocessing_V5_features
 #from sklearn.dummy import DummyClassifier
 from io import BytesIO
