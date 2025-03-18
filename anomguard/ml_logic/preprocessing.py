@@ -13,6 +13,9 @@ from imblearn.combine import SMOTETomek
 from collections import Counter
 from sklearn.decomposition import PCA
 from scipy.stats.mstats import winsorize
+import os
+from anomguard.params import *
+
 
 
 #Package from sklearn
@@ -26,7 +29,8 @@ from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif,
 #Package from imblearn
 from imblearn.over_sampling import SMOTE
 
-def preprocessing_baseline(data):
+
+def preprocessing_baseline(data = None, X_test = None):
 
     '''
     This function performs baseline preprocessing using Robust Scaler on the input data.
@@ -76,7 +80,7 @@ def preprocessing_baseline_features(X):
     X['Hour'] = (X['Time'] // 3600) % 24
 
     rb_scaler = RobustScaler()
-    X_transformed = rb_scaler.fit_transform(X)
+    X_transformed = rb_scaler.transform(X)
 
 
     return X_transformed
@@ -164,11 +168,25 @@ def preprocessing_V2_features(X):
         pd.DataFrame: The transformed DataFrame.
     """
 
-    X = X.copy()  # Avoid modifying the original DataFrame
+
+    print("*******preprocessing_V2_features is starting********")
+
+    local_data_path = os.path.join(LOCAL_DATA_PATH, 'creditcard.csv')
+    df = pd.read_csv(local_data_path)
+    df['Hour'] = (df['Time'] // 3600) % 24
     X['Hour'] = (X['Time'] // 3600) % 24
 
-    # Apply log transformation BEFORE scaling
-    X['Amount'] = np.log1p(X['Amount'])
+    Xx = df.drop(columns = ['Class'])
+    y = df['Class']
+
+    X_train, X_temp, y_train, y_temp = train_test_split(Xx, y, test_size=0.25, random_state=42)
+    # Apply SMOTE to the training set
+    smote = SMOTE(sampling_strategy=0.2, random_state=42)  # Adjust ratio if needed
+    X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+
+    # Define function for log transformation
+    log_transformer = FunctionTransformer(lambda X: np.log1p(X), validate=False)
+
 
     # Define cyclical encoding transformation
     cyclical_transformer = FunctionTransformer(lambda X: np.column_stack((
@@ -183,12 +201,16 @@ def preprocessing_V2_features(X):
         ('hour_cyclical', cyclical_transformer, ['Hour'])
     ], remainder='passthrough')
 
+    X_train_transformed = preprocessor.fit_transform(X_train_smote)
     # Apply the transformation pipeline
-    X_transformed = preprocessor.fit_transform(X)
+    X = X.drop(columns='Unnamed: 0')
+    X_transformed = preprocessor.transform(X)
 
     # Convert back to DataFrame with proper column names
     columns = ['Time', 'Log_Amount', 'Hour_sin', 'Hour_cos'] + [col for col in X.columns if col not in ['Time', 'Amount', 'Hour']]
-    X_transformed = pd.DataFrame(X_transformed, columns=columns, index=X.index)
+
+
+    X_transformed = pd.DataFrame(X_transformed, columns=columns)
 
     return X_transformed
 

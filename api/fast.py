@@ -50,6 +50,7 @@ async def get_predict(file: UploadFile = File(...)):
     assert model is not None
     X = df.drop(columns='Unnamed: 0')
 
+
     print("PRE_PROCCESING_of_Features_VERSION", PRE_PROCCESING_VERSION)
         ## performing basic preporccsing
     if PRE_PROCCESING_VERSION == "V1":
