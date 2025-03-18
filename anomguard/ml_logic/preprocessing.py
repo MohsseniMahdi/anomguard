@@ -158,16 +158,17 @@ def preprocessing_V2_features(X):
     Performs preprocessing_V2 transformations on the input DataFrame.
 
     Args:
-        X (pd.DataFrame): The input DataFrame.
+        X (pd.DataFrame): The input feature DataFrame.
 
     Returns:
         pd.DataFrame: The transformed DataFrame.
     """
 
+    X = X.copy()  # Avoid modifying the original DataFrame
     X['Hour'] = (X['Time'] // 3600) % 24
 
-    # Define function for log transformation
-    log_transformer = FunctionTransformer(lambda X: np.log1p(X), validate=False)
+    # Apply log transformation BEFORE scaling
+    X['Amount'] = np.log1p(X['Amount'])
 
     # Define cyclical encoding transformation
     cyclical_transformer = FunctionTransformer(lambda X: np.column_stack((
@@ -175,25 +176,19 @@ def preprocessing_V2_features(X):
         np.cos(2 * np.pi * X / 24)
     )), validate=False)
 
-    # Define pipeline for 'Amount' - first apply scaling, then log transform
-    amount_pipeline = Pipeline([
-        ('scaler', RobustScaler()),
-        ('log_transform', log_transformer)
-    ])
-
     # Define ColumnTransformer to apply transformations
     preprocessor = ColumnTransformer(transformers=[
-        ('time_scaler', RobustScaler(), ['Time']),  # Scale 'Time' only
-        ('amount_pipeline', amount_pipeline, ['Amount']),  # Apply scaling + log transform to 'Amount'
-        ('hour_cyclical', cyclical_transformer, ['Hour'])  # Apply sine and cosine encoding to 'Hour'
-    ], remainder='passthrough')  # Keep other columns unchanged
+        ('time_scaler', RobustScaler(), ['Time']),
+        ('amount_scaler', RobustScaler(), ['Amount']),  # Scale the log-transformed 'Amount'
+        ('hour_cyclical', cyclical_transformer, ['Hour'])
+    ], remainder='passthrough')
 
     # Apply the transformation pipeline
     X_transformed = preprocessor.fit_transform(X)
 
     # Convert back to DataFrame with proper column names
     columns = ['Time', 'Log_Amount', 'Hour_sin', 'Hour_cos'] + [col for col in X.columns if col not in ['Time', 'Amount', 'Hour']]
-    X_transformed = pd.DataFrame(X_transformed, columns=columns)
+    X_transformed = pd.DataFrame(X_transformed, columns=columns, index=X.index)
 
     return X_transformed
 
