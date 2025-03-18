@@ -502,3 +502,79 @@ def preprocessing_V4(data):
     print("After Tomek Links:", Counter(y_train))
 
     return X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val
+
+def preprocessing_V4_features(X):
+
+    '''
+    This function performs baseline preprocessing using Robust Scaler on the input data.
+
+    Args:
+        data (pd.DataFrame): The training data.
+
+    Returns:
+        tuple: A tuple containing the transformed training and testing data.
+
+    '''
+
+    X['Hour'] = (X['Time'] // 3600) % 24
+
+    rb_scaler = RobustScaler()
+    X_transformed = rb_scaler.fit_transform(X)
+
+
+    return X_transformed
+
+def preprocessing_V5(data):
+
+    '''
+    This function performs baseline preprocessing using Robust Scaler on the input data.
+
+    Args:
+        data (pd.DataFrame): The training data.
+
+    Returns:
+        tuple: A tuple containing the transformed training and testing data.
+
+    '''
+
+    print("Baseline Preprocessing is starting")
+
+    data['Hour'] = (data['Time'] // 3600) % 24
+
+    ## split the data
+    X = data.drop(columns = ['Class'])
+    y = data['Class']
+
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.25, random_state=42)
+    X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+
+    rb_scaler = RobustScaler()
+    X_train_transformed = rb_scaler.fit_transform(X_train)
+    X_test_transformed = rb_scaler.transform(X_test)
+    X_val_transformed = rb_scaler.transform(X_val)
+
+    print("Baseline Preprocessing finished")
+
+    return X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val
+
+
+def preprocessing_V5_features(X):
+
+    '''
+    This function performs baseline preprocessing using Robust Scaler on the input data.
+
+    Args:
+        data (pd.DataFrame): The training data.
+
+    Returns:
+        tuple: A tuple containing the transformed training and testing data.
+
+    '''
+
+    X['Hour'] = (X['Time'] // 3600) % 24
+
+    rb_scaler = RobustScaler()
+    X_transformed = rb_scaler.fit_transform(X)
+
+
+    return X_transformed
