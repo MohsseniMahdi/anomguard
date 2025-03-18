@@ -497,3 +497,86 @@ def preprocessing_V4(data):
     print("After Tomek Links:", Counter(y_train))
 
     return X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val
+
+def preprocessing_V4_features(X):
+    """
+    Performs preprocessing_V4 transformations on the input DataFrame.
+
+    Args:
+        X (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        pd.DataFrame: The transformed DataFrame.
+    """
+
+    X = X.copy()
+    X['Hour'] = (X['Time'] // 3600) % 24
+
+    # Apply scaling only to 'Time' and 'Amount'
+    scaler = RobustScaler()
+    X[['Time', 'Amount']] = scaler.fit_transform(X[['Time', 'Amount']])
+
+    # Log transform the 'Amount' column
+    X['Log_Amount'] = np.log1p(X['Amount'])
+
+    # Drop the original 'Amount' column
+    X.drop(columns=['Amount'], inplace=True)
+
+    # Apply cyclical transformation
+    X["Hour_sin"] = np.sin(2 * np.pi * X["Hour"] / 24)
+    X["Hour_cos"] = np.cos(2 * np.pi * X["Hour"] / 24)
+
+    # Drop the 'Hour' column
+    X.drop(columns=["Hour"], inplace=True)
+
+    # Calculate correlation matrix
+    correlation_matrix = X.corr()
+
+    # Drop low-correlation features
+    low_corr_features = ['V26', 'V22', 'V25', 'V23', 'V13', 'Time']
+    X.drop(columns=low_corr_features, inplace=True)
+
+    # Compute absolute correlation with the target column
+    target_corr = correlation_matrix['Class'].abs()
+
+    # Find highly correlated pairs
+    upper = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool))
+    high_corr_pairs = [(column, other) for column in upper.columns for other in upper.index if upper[column][other] > 0.85]
+
+    # Drop one feature from each high-correlation pair
+    columns_to_drop = []
+    for feature1, feature2 in high_corr_pairs:
+        if abs(target_corr[feature1]) < abs(target_corr[feature2]):
+            columns_to_drop.append(feature1)
+        else:
+            columns_to_drop.append(feature2)
+
+    X.drop(columns=columns_to_drop, inplace=True)
+
+    # 1. Variance Threshold
+    vt = VarianceThreshold(threshold=1)
+    X_vt = vt.fit_transform(X)
+    selected_vt_features = X.columns[vt.get_support()]
+    X_vt = pd.DataFrame(X_vt, columns=selected_vt_features)
+
+    # 2. SelectKBest
+    n_features_vt = X_vt.shape[1]
+    k_value = min(10, n_features_vt)
+    k_best = SelectKBest(score_func=f_classif, k=k_value)
+    X_kb = k_best.fit_transform(X_vt, pd.Series([0] * X_vt.shape[0])) #Dummy target
+    selected_kb_features = selected_vt_features[k_best.get_support()]
+    X_kb = pd.DataFrame(X_kb, columns=selected_kb_features)
+
+    # 3. RFE
+    try:
+        rfe = RFE(estimator=LogisticRegression(), n_features_to_select=10)
+        X_rfe = rfe.fit_transform(X_kb, pd.Series([0] * X_kb.shape[0])) #Dummy target
+        selected_rfe_features = selected_kb_features[rfe.support_]
+    except Exception as e:
+        print(f"Error during RFE: {e}")
+        X_rfe = X_kb
+        selected_rfe_features = selected_kb_features
+
+    X_transformed = pd.DataFrame(X_rfe, columns=selected_rfe_features, index=X.index)
+
+    return X_transformed
