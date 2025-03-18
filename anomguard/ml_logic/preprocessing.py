@@ -203,7 +203,6 @@ def preprocessing_V2_features(X):
 
     X_train_transformed = preprocessor.fit_transform(X_train_smote)
     # Apply the transformation pipeline
-    X = X.drop(columns='Unnamed: 0')
     X_transformed = preprocessor.transform(X)
 
     # Convert back to DataFrame with proper column names
