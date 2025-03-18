@@ -236,7 +236,7 @@ def preprocessing_V3(data):
     print("Original class distribution befor SMOTE in first part:", Counter(y))
 
     # Apply BorderlineSMOTE (instead of regular SMOTE)
-    smote = BorderlineSMOTE(sampling_strategy=0.3, random_state=42)
+    smote = BorderlineSMOTE(sampling_strategy=0.4, random_state=42)
     X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
 
 
@@ -268,7 +268,7 @@ def preprocessing_V3(data):
 
 
 
-    scaler = StandardScaler()
+    #scaler = StandardScaler()
     X_train_smote["Amount"] = scaler.fit_transform(X_train_smote[["Amount"]])
     X_test["Amount"] = scaler.transform(X_test[["Amount"]])
     X_val["Amount"] = scaler.transform(X_val[["Amount"]])
