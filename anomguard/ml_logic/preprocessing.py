@@ -4,6 +4,7 @@ import pandas as pd
 
 
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import SMOTE, BorderlineSMOTE
@@ -11,7 +12,6 @@ from imblearn.under_sampling import TomekLinks
 from imblearn.combine import SMOTETomek
 from collections import Counter
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 from scipy.stats.mstats import winsorize
 
 
@@ -20,6 +20,8 @@ from sklearn.preprocessing import RobustScaler, FunctionTransformer
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
+from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif, RFE
+
 
 #Package from imblearn
 from imblearn.over_sampling import SMOTE
@@ -234,7 +236,7 @@ def preprocessing_V3(data):
     print("Original class distribution befor SMOTE in first part:", Counter(y))
 
     # Apply BorderlineSMOTE (instead of regular SMOTE)
-    smote = BorderlineSMOTE(sampling_strategy=0.3, random_state=42)
+    smote = BorderlineSMOTE(sampling_strategy=0.4, random_state=42)
     X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
 
 
@@ -266,7 +268,7 @@ def preprocessing_V3(data):
 
 
 
-    scaler = StandardScaler()
+    #scaler = StandardScaler()
     X_train_smote["Amount"] = scaler.fit_transform(X_train_smote[["Amount"]])
     X_test["Amount"] = scaler.transform(X_test[["Amount"]])
     X_val["Amount"] = scaler.transform(X_val[["Amount"]])
@@ -363,3 +365,216 @@ def preprocessing_V3_features(X):# -> tuple[Any | DataFrame | ... | Series[Any],
     print("Preprocessing of features finished")
 
     return X_scaled
+
+def preprocessing_V4(data):
+    """
+    Performs preprocessing version 4 on the input data, returning consistent values.
+
+    Args:
+        data (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        tuple: A tuple containing the transformed training, test, and validation data,
+               along with the corresponding target variables.
+    """
+
+    print("Preprocessing version 4 is starting")
+
+    df = data.copy()
+    df['Hour'] = (df['Time'] // 3600) % 24
+
+    # Separate features and target variable
+    X = df.drop(columns=['Class'])
+    y = df['Class']
+
+    # Split data into training (80%) and test (20%)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+    # Split training data into training (90%) and validation (10%)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.1, random_state=42, stratify=y_train)
+
+    # Apply SMOTE to the training set
+    smote = SMOTE(sampling_strategy=0.2, random_state=42)  # Adjust ratio if needed
+    X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+
+    # Initialize RobustScaler
+    scaler = RobustScaler()
+
+    # Apply scaling only to 'Time' and 'Amount'
+    X_train_smote[['Time', 'Amount']] = scaler.fit_transform(X_train_smote[['Time', 'Amount']])
+    X_test[['Time', 'Amount']] = scaler.transform(X_test[['Time', 'Amount']])
+    X_val[['Time', 'Amount']] = scaler.transform(X_val[['Time', 'Amount']])
+
+    # Log transform the 'Amount' column to reduce skewness
+    X_train_smote['Log_Amount'] = np.log1p(X_train_smote['Amount'])
+    X_test['Log_Amount'] = np.log1p(X_test['Amount'])
+    X_val['Log_Amount'] = np.log1p(X_val['Amount'])
+
+    # Drop the original 'Amount' column
+    X_train_smote.drop(columns=['Amount'], inplace=True)
+    X_test.drop(columns=['Amount'], inplace=True)
+    X_val.drop(columns=['Amount'], inplace=True)
+
+    # Apply cyclical transformation
+    X_train_smote["Hour_sin"] = np.sin(2 * np.pi * X_train_smote["Hour"] / 24)
+    X_train_smote["Hour_cos"] = np.cos(2 * np.pi * X_train_smote["Hour"] / 24)
+    X_test["Hour_sin"] = np.sin(2 * np.pi * X_test["Hour"] / 24)
+    X_test["Hour_cos"] = np.cos(2 * np.pi * X_test["Hour"] / 24)
+    X_val["Hour_sin"] = np.sin(2 * np.pi * X_val["Hour"] / 24)
+    X_val["Hour_cos"] = np.cos(2 * np.pi * X_val["Hour"] / 24)
+
+    # Drop the 'Hour' column
+    X_train_smote.drop(columns=["Hour"], inplace=True)
+    X_test.drop(columns=["Hour"], inplace=True)
+    X_val.drop(columns=["Hour"], inplace=True)
+
+    X_train_smote['Class'] = y_train_smote
+
+    # Calculate correlation matrix
+    correlation_matrix = X_train_smote.corr()
+
+    # Drop low-correlation features
+    low_corr_features = ['V26', 'V22', 'V25', 'V23', 'V13', 'Time']
+    X_train_smote.drop(columns=low_corr_features, inplace=True)
+    X_test.drop(columns=low_corr_features, inplace=True)
+    X_val.drop(columns=low_corr_features, inplace=True)
+
+    # Compute absolute correlation with the target column
+    target_corr = correlation_matrix['Class'].abs()
+
+    # Find highly correlated pairs
+    upper = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool))
+    high_corr_pairs = [(column, other) for column in upper.columns for other in upper.index if upper[column][other] > 0.85]
+
+    # Drop one feature from each high-correlation pair
+    columns_to_drop = []
+    for feature1, feature2 in high_corr_pairs:
+        if abs(target_corr[feature1]) < abs(target_corr[feature2]):
+            columns_to_drop.append(feature1)
+        else:
+            columns_to_drop.append(feature2)
+
+    X_train_smote.drop(columns=columns_to_drop, inplace=True)
+    X_test.drop(columns=columns_to_drop, inplace=True)
+    X_val.drop(columns=columns_to_drop, inplace=True)
+
+    X_train_smote.drop(columns=['Class'], inplace=True)
+
+    # 1. Variance Threshold
+    vt = VarianceThreshold(threshold=1)
+    X_train_vt = vt.fit_transform(X_train_smote)
+    selected_vt_features = X_train_smote.columns[vt.get_support()]
+
+    X_test_vt = X_test[selected_vt_features]
+    X_val_vt = X_val[selected_vt_features]
+
+    # 2. SelectKBest
+    n_features_vt = X_train_vt.shape[1]
+    k_value = min(10, n_features_vt)
+    k_best = SelectKBest(score_func=f_classif, k=k_value)
+    X_train_kb = k_best.fit_transform(X_train_vt, y_train_smote)
+    selected_kb_features = selected_vt_features[k_best.get_support()]
+
+    X_test_kb = X_test_vt[selected_kb_features]
+    X_val_kb = X_val_vt[selected_kb_features]
+
+    # 3. RFE
+    try:
+        rfe = RFE(estimator=LogisticRegression(), n_features_to_select=10)
+        X_train_rfe = rfe.fit_transform(X_train_kb, y_train_smote)
+        selected_rfe_features = selected_kb_features[rfe.support_]
+    except Exception as e:
+        print(f"Error during RFE: {e}")
+        X_train_rfe = X_train_kb
+        selected_rfe_features = selected_kb_features
+
+    X_test_rfe = X_test_kb[selected_rfe_features]
+    X_val_rfe = X_val_kb[selected_rfe_features]
+
+    # Apply Tomek Links
+    tomek = TomekLinks()
+    X_train_transformed, y_train = tomek.fit_resample(pd.DataFrame(X_train_rfe, columns=selected_rfe_features), y_train_smote)
+
+    X_test_transformed = pd.DataFrame(X_test_rfe, columns=selected_rfe_features)
+    X_val_transformed = pd.DataFrame(X_val_rfe, columns=selected_rfe_features)
+
+    # Check final class distribution
+    print("After Tomek Links:", Counter(y_train))
+
+    return X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val
+
+def preprocessing_V4_features(X):
+
+    '''
+    This function performs baseline preprocessing using Robust Scaler on the input data.
+
+    Args:
+        data (pd.DataFrame): The training data.
+
+    Returns:
+        tuple: A tuple containing the transformed training and testing data.
+
+    '''
+
+    X['Hour'] = (X['Time'] // 3600) % 24
+
+    rb_scaler = RobustScaler()
+    X_transformed = rb_scaler.fit_transform(X)
+
+
+    return X_transformed
+
+def preprocessing_V5(data):
+
+    '''
+    This function performs baseline preprocessing using Robust Scaler on the input data.
+
+    Args:
+        data (pd.DataFrame): The training data.
+
+    Returns:
+        tuple: A tuple containing the transformed training and testing data.
+
+    '''
+
+    print("Baseline Preprocessing is starting")
+
+    data['Hour'] = (data['Time'] // 3600) % 24
+
+    ## split the data
+    X = data.drop(columns = ['Class'])
+    y = data['Class']
+
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.25, random_state=42)
+    X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+
+    rb_scaler = RobustScaler()
+    X_train_transformed = rb_scaler.fit_transform(X_train)
+    X_test_transformed = rb_scaler.transform(X_test)
+    X_val_transformed = rb_scaler.transform(X_val)
+
+    print("Baseline Preprocessing finished")
+
+    return X_train_transformed, X_test_transformed, X_val_transformed, y_train, y_test, y_val
+
+
+def preprocessing_V5_features(X):
+
+    '''
+    This function performs baseline preprocessing using Robust Scaler on the input data.
+
+    Args:
+        data (pd.DataFrame): The training data.
+
+    Returns:
+        tuple: A tuple containing the transformed training and testing data.
+
+    '''
+
+    X['Hour'] = (X['Time'] // 3600) % 24
+
+    rb_scaler = RobustScaler()
+    X_transformed = rb_scaler.fit_transform(X)
+
+
+    return X_transformed

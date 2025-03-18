@@ -22,12 +22,13 @@ Effective preprocessing is essential to address the class imbalance and prepare 
 
 The dataset was loaded using Pandas:
 
-1. > **import pandas as pd**: The initial step involves loading the credit card transaction dataset from a CSV file into a pandas DataFrame named data1. The pd.read_csv() function is utilized for this purpose, reading the data from the specified file path '../raw_data/creditcard.csv'.
+### **1. import pandas as pd**:
+The initial step involves loading the credit card transaction dataset from a CSV file into a pandas DataFrame named data1. The pd.read_csv() function is utilized for this purpose, reading the data from the specified file path '../raw_data/creditcard.csv'.
 
 ```python
 data1 = pd.read_csv('../raw_data/creditcard.csv')
 ```
-2. > **Verifying the absence of missing values to ensure data integrity.**:
+### **2. Verifying the absence of missing values to ensure data integrity.**:
 
 ```python
 ### **Data Integrity Check: Missing Values**
@@ -40,10 +41,10 @@ After loading and initially inspecting the data, it's crucial to check for missi
 >> - Specifically, df.isnull() creates a boolean mask indicating the presence of missing values (True) or their absence (False) for each element in the DataFrame. Then, .sum() is applied twice: first to sum the boolean values along each column (resulting in the count of missing values per column), and then a second time to sum those column-wise sums, yielding the grand total of missing values in the entire DataFrame.
 >> - The result of this operation was 0. This 0 indicates that there are no missing values present in the DataFrame df. This is a critical verification step, as missing values can significantly impact the performance of machine learning models. Therefore, confirming the absence of missing data is a fundamental prerequisite for reliable model training and evaluation.
 
-3. > **Identifying and removing duplicate entries to improve data quality**:
+### **3. Identifying and removing duplicate entries to improve data quality**:
 >> - This code snippet focuses on identifying and quantifying duplicate rows within the DataFrame df. The pandas duplicated() method returns a boolean Series indicating whether each row is a duplicate of a previous row. The .sum() method then counts the number of True values, effectively giving the total number of duplicate rows.
 
-### **Data Cleaning: Duplicate Row Removal**
+#### **Data Cleaning: Duplicate Row Removal**
 
 ```python
 duplicate_rows = df.duplicated().sum()
@@ -67,10 +68,10 @@ print(f"Number of duplicate rows: {duplicate_rows}")
 ```
 >> - The subsequent output Number of duplicate rows: 0 confirms that the duplicate rows have been successfully removed, leaving a clean dataset for further preprocessing and analysis. The fact that the first print statement saved the initial number of duplicates and the second print showed 0, validates the success of the removal.
 
-4. > **Converting time-based data into cyclical features to capture temporal patterns**:
+### **4. Converting time-based data into cyclical features to capture temporal patterns**:
 >> - This code segment focuses on transforming the 'Time' feature, which represents the seconds elapsed since the first transaction, into a more meaningful 'Hour' feature and then applying a cyclical transformation.
 
-### **Feature Engineering: Cyclical Transformation of Time**
+#### **Feature Engineering: Cyclical Transformation of Time**
 
 ```python
 df['Hour'] = (df['Time'] // 3600) % 24
@@ -95,7 +96,7 @@ df.drop(columns=["Hour"], inplace=True)
 
 ![Credit Card Fraud Detection](./images/Transaction_Count_by_Hour.png)
 
-5. > **Examining the distribution of the target variable to understand class imbalance**:
+### **5. Examining the distribution of the target variable to understand class imbalance**:
 >> - Next step snippet calculates and displays the count of each unique value in the 'Class' column of the DataFrame df. The 'Class' column represents the target variable, where 0 indicates a non-fraudulent transaction and 1 indicates a fraudulent transaction.
 >> -
 
@@ -129,7 +130,7 @@ sns.countplot('Class', data=df, palette=["red","blue"]) creates the count plot, 
 
 ![Credit Card Fraud Detection](./images/Class_Distributions.png)
 
-6. > **Data Preparation: Feature and Target Separation and Train-Test Split**:
+### **6. Data Preparation: Feature and Target Separation and Train-Test Split**:
 >> - Following the analysis of the class distribution, the dataset is prepared for machine learning model training. The first step involves separating the features (independent variables) and the target variable (dependent variable).
 
 ```python
@@ -146,7 +147,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 >>> - random_state=42 ensures reproducibility by fixing the random seed.
 >>> - stratify=y is crucial for imbalanced datasets like this one. It ensures that the class distribution in the training and testing sets is the same as in the original dataset. This is vital to prevent the model from being trained on a training set that does not accurately represent the overall distribution of fraudulent and non-fraudulent transactions. This process creates X_train and y_train for training the model, and X_test and y_test for evaluating its performance.
 
-7. > **Addressing Class Imbalance with Advanced Techniques**:
+### **7. Addressing Class Imbalance with Advanced Techniques**:
 
 >> - One of the primary challenges when working with the Credit Card Fraud Detection dataset is the **highly imbalanced nature of the data**, where fraudulent transactions make up only 0.172% of the total. This imbalance can lead machine learning models to favor the majority class, resulting in poor performance when identifying fraudulent transactions. Such bias is harmful because failing to detect fraud accurately can lead to significant financial losses and damage to consumer trust. It also highlights the importance of employing strategies to rebalance the data, ensuring the model's fairness and reliability.
 
@@ -175,7 +176,7 @@ print("\nClass distribution after SMOTE:\n", pd.Series(y_train_smote).value_coun
 # Name: Class, dtype: int64
 ```
 
->> ### 🔍 Why Use BorderlineSMOTE & Tomek Links?
+>> #### 🔍 Why Use BorderlineSMOTE & Tomek Links?
 
 >> - Combining **BorderlineSMOTE** with **Tomek Links** provides a comprehensive approach to handling imbalanced data:
 - **BorderlineSMOTE**:
@@ -189,6 +190,39 @@ This combined strategy ensures that the training data is both balanced and clean
 
 test berta ....
 
+### **8. Visualizing Class Distribution Post-SMOTE**
+
+To gain further insights into the results of the oversampling process, it is crucial to visualize the class distribution after applying **BorderlineSMOTE**. Visualization provides an intuitive way to confirm the effects of oversampling and validate that the class imbalance has been significantly addressed. By plotting the counts of each class, we can ensure that the dataset is now more balanced, supporting better model performance during training.
+
+The provided code snippet achieves this by:
+1. **Plotting the Class Distribution**: Using Seaborn's barplot, the distribution of `y_train_smote` is displayed, with separate counts for the "Non-Fraud" (`0`) and "Fraud" (`1`) classes.
+2. **Calculating Class Proportions**: The proportions of each class are computed and displayed as percentages, confirming that fraud cases now account for approximately **23.08%** of the training data, compared to the overwhelming dominance of non-fraud cases before SMOTE.
+
+```python
+# Plot new class distribution
+plt.figure(figsize=(6, 4))
+sns.barplot(x=pd.Series(y_train_smote).value_counts().index,
+            y=pd.Series(y_train_smote).value_counts().values, palette="coolwarm")
+plt.xticks(ticks=[0, 1], labels=["Non-Fraud (0)", "Fraud (1)"])
+plt.ylabel("Count")
+plt.title("Class Distribution After SMOTE")
+plt.show()
+
+print('Not Fraud', round(y_train_smote.value_counts()[0]/len(y_train_smote) * 100, 2))
+print('Fraud', round(y_train_smote.value_counts()[1]/len(y_train_smote) * 100, 2))
+```
+
+![Credit Card Fraud Detection](./images/Class_Distribution_After_SMOTE.png)
+
+**Output:**
+```
+Not Fraud: 76.92%
+Fraud: 23.08%
+```
+
+The visualization clearly highlights the shift in class distribution, demonstrating the success of the rebalancing process. With a more equitable distribution of classes, the model is now better equipped to learn meaningful patterns for identifying fraudulent transactions without being biased toward the majority class. These improvements ultimately enhance the model's predictive capabilities, particularly in recognizing rare fraud cases.
+
+This step is an essential part of evaluating the preprocessing workflow and ensures that the chosen oversampling technique has achieved its intended effect. Would you like me to add further explanatory notes about the visualization or suggest next steps in the workflow?
 
 
 
@@ -201,9 +235,7 @@ test berta ....
 
 
 
-
-
-
+### 12jdljkdlksjdlsdlsjdlksjdlkjslkjskldjsldkjlskjdlsdjlksdjlksjd
 
 
 
