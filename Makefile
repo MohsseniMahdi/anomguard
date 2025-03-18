@@ -133,6 +133,8 @@ docker_create_repo:
 		--location=$(GCP_REGION) \
 		--description="Repository for storing docker images"
 
+
+
 docker_push:
 	docker push $(DOCKER_IMAGE_PATH):prod
 
