@@ -1,5 +1,6 @@
 ## contains model details
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import VotingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
