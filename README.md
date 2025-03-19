@@ -224,19 +224,114 @@ The visualization clearly highlights the shift in class distribution, demonstrat
 
 This step is an essential part of evaluating the preprocessing workflow and ensures that the chosen oversampling technique has achieved its intended effect. Would you like me to add further explanatory notes about the visualization or suggest next steps in the workflow?
 
+### **9.  Visualizing the distribution of PCA-transformed features to identify potential outliers:**
+
+This code snippet generates a boxplot of the PCA-transformed features (V1-V28) in the training data after applying BorderlineSMOTE. The purpose is to visually inspect the distribution of these features and identify potential outliers.
+
+
+```python
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=X_train_smote.iloc[:, 1:29])  # Excluding 'Time', 'Amount', 'Hour', 'Class'
+plt.xticks(rotation=90)
+plt.title("Boxplot of PCA Features")
+plt.show()
+```
+
+![Credit Card Fraud Detection](./images/Boxplot_of_PCA_Features.png)
+
+The resulting boxplot reveals the presence of outliers in several PCA features, which could potentially impact the performance of machine learning models.<br>
+To address the issue of outliers, Robust Scaling is applied to the PCA-transformed features. This scaling technique is less sensitive to outliers compared to standard scaling.
+
+The boxplot of the scaled features shows that the outliers have been mitigated, and the features are now on a more comparable scale. Robust Scaling helps to ensure that the model is not overly influenced by extreme values, leading to improved performance.
+
+![Credit Card Fraud Detection](./images/Boxplot_of_PCA_Features_After_Scaling.png)
+
+After scaling the PCA features to ensure uniformity in range and robustness against outliers, it's equally important to address extreme values that might still skew the analysis or model performance. In this step, we introduce the Winsorization process, which offers a robust technique to handle outliers by capping extreme values instead of outright removing them.
+
+```python
+columns_to_winsorize = ["V8", "V21", "V27", "V28"]
+
+for col in columns_to_winsorize:
+    X_train_smote[col] = winsorize(X_train_smote[col], limits=[0.01, 0.01])
+```
+
+The winsorize method, from the scipy.stats.mstats library, enables this transformation by limiting the proportion of extreme data points at both ends of the distribution. Here, specific PCA components—namely V8, V21, V27, and V28—have been selected for Winsorization due to their observed outlier behavior. By setting the limits at [0.01, 0.01], the method caps the bottom and top 1% of values, ensuring the underlying data distribution remains largely intact while mitigating the impact of extreme cases.
+
+This adjustment aims to stabilize the dataset further, aligning it for reliable model training and validation.
+
+![Credit Card Fraud Detection](./images/Boxplot_of_PCA_Features_After_winsorize.png)
+
+During the preprocessing stage, dealing with negative values in features is a crucial step to ensure compatibility with transformations like logarithmic scaling. Logarithmic transformation is particularly useful for reducing skewness and stabilizing the variance in data, but it requires all input values to be non-negative.
+
+```python
+X_train_smote['V20'] = np.log(X_train_smote['V20'].clip(lower=0.0001))
+X_train_smote['V23'] = np.log(X_train_smote['V23'].clip(lower=0.0001))
+```
+
+In this step, features V20 and V23, which contain negative values, are addressed by clipping them to a small positive threshold (0.0001). This ensures that all values in these columns become non-negative and suitable for logarithmic transformation. The transformed values are then applied to V20 and V23 using the natural logarithm function.
+
+This adjustment not only resolves issues related to negative values but also enhances the distribution of these features, preparing them for subsequent analysis or modeling steps.
+
+![Credit Card Fraud Detection](./images/Boxplot_of_PCA_Features_After_Logarithmic_transformation.png)
+
+Also, as part of the data exploration process, it's critical to thoroughly examine the distribution of important features. The Amount feature, representing transaction amounts, is particularly significant for understanding patterns and potential anomalies in the dataset.
+
+In this step, we utilize a boxplot and histogram to visualize the distribution of Amount values. The boxplot highlights the presence of numerous outliers, which can skew the data distribution and negatively impact the model’s performance. The histogram, enhanced with a kernel density estimate (KDE), provides a complementary view of the overall distribution, revealing insights into the data's shape and spread.
+
+Identifying and addressing these outliers will be pivotal in subsequent preprocessing steps to ensure the reliability and effectiveness of the model.
+
+![Credit Card Fraud Detection](./images/Boxplot_of_Transaction_Amounts.png)
+
+To address the previously identified issue of outliers in the Amount feature, a transformation step is applied to improve the data's distribution and minimize the influence of extreme values. The log1p function is particularly effective in this context, as it applies a logarithmic transformation while handling zero values gracefully by adding 1 to each data point before taking the natural logarithm.
+
+By transforming the Amount feature with log1p, the skewness of the distribution is reduced, resulting in a more normalized dataset. This preprocessing step further prepares the feature for use in the modeling process, ensuring that the model's performance is not adversely affected by the presence of large variances or outliers.
+
+![Credit Card Fraud Detection](./images/Boxplot_of_Transaction_Amounts_after_Log_Transformation.png)
+
+Building on the earlier steps to preprocess the Amount feature, we combine scaling and outlier handling to ensure this variable contributes effectively to the model. The following code applies these transformations sequentially:
+
+```python
+scaler = StandardScaler()
+X_train_smote["Amount"] = scaler.fit_transform(X_train_smote[["Amount"]])
+X_train_smote["Amount"] = winsorize(X_train_smote["Amount"], limits=[0.01, 0.01])
+```
+First, the Amount feature is standardized using the StandardScaler. This method centers the data by removing the mean and scales it to have a unit variance, ensuring that the feature is normalized and comparable across datasets.
+
+Subsequently, the winsorize function is utilized to cap the extreme values in the Amount feature. By setting limits at 1% on both ends, it mitigates the impact of outliers while retaining as much of the dataset's original structure as possible. This step ensures that the transformed Amount feature remains robust and suitable for further analysis or modeling tasks.
+
+![Credit Card Fraud Detection](./images/Boxplot_of_Transaction_Amounts_after_winsorize.png)
+
+After applying SMOTE to balance the dataset, it's essential to address potential noise caused by overlapping samples in the majority class. This step is crucial for refining the dataset and ensuring the model's ability to distinguish between fraud and non-fraud cases effectively.
+
+The **Tomek Links** method is employed here for noise reduction. Tomek Links identifies and removes overlapping majority class samples that are in close proximity to minority class samples (fraud cases). This has the dual benefit of cleaning the dataset and sharpening the decision boundary, ultimately enhancing classification performance. However, it is important to note that removing too many majority class samples could weaken the model, particularly if the dataset is already balanced.
+
+Here is the code for applying Tomek Links:
+
+```python
+tomek = TomekLinks()
+X_final, y_final = tomek.fit_resample(X_train_pca, y_train_smote)
+```
+
+**When to use Tomek Links?**
+- ✔ It is effective if a cleaner dataset is desired and the classifier is overfitting due to overlapping samples.
+- ✔ It sharpens the decision boundary by eliminating overlapping majority class samples.
+
+**When NOT to use Tomek Links?**
+- ✖ Avoid it if the dataset is already well-balanced after applying SMOTE.
+- ✖ If removing non-fraud samples reduces model performance, it may not be appropriate.
+
+In this specific scenario, Tomek Links did not remove any samples, as no overlapping non-fraud cases were detected. This result suggests the application of Tomek Links was harmless and serves as a validation step to confirm dataset integrity.
 
 
 
 
-
-
-
-
-
-
-
-### 12jdljkdlksjdlsdlsjdlksjdlkjslkjskldjsldkjlskjdlsdjlksdjlksjd
-
+### 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+### 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+### 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+### 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+### 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+### 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+### 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 
 
 
