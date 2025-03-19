@@ -162,11 +162,12 @@ def preprocessing_V2_features(X):
     Performs preprocessing_V2 transformations on the input DataFrame.
 
     Args:
-        X (pd.DataFrame): The input DataFrame.
+        X (pd.DataFrame): The input feature DataFrame.
 
     Returns:
         pd.DataFrame: The transformed DataFrame.
     """
+
 
     print("*******preprocessing_V2_features is starting********")
 
@@ -186,33 +187,27 @@ def preprocessing_V2_features(X):
     # Define function for log transformation
     log_transformer = FunctionTransformer(lambda X: np.log1p(X), validate=False)
 
+
     # Define cyclical encoding transformation
     cyclical_transformer = FunctionTransformer(lambda X: np.column_stack((
         np.sin(2 * np.pi * X / 24),
         np.cos(2 * np.pi * X / 24)
     )), validate=False)
 
-    # Define pipeline for 'Amount' - first apply scaling, then log transform
-    amount_pipeline = Pipeline([
-        ('scaler', RobustScaler()),
-        ('log_transform', log_transformer)
-    ])
-
     # Define ColumnTransformer to apply transformations
     preprocessor = ColumnTransformer(transformers=[
-        ('time_scaler', RobustScaler(), ['Time']),  # Scale 'Time' only
-        ('amount_pipeline', amount_pipeline, ['Amount']),  # Apply scaling + log transform to 'Amount'
-        ('hour_cyclical', cyclical_transformer, ['Hour'])  # Apply sine and cosine encoding to 'Hour'
-    ], remainder='passthrough')  # Keep other columns unchanged
+        ('time_scaler', RobustScaler(), ['Time']),
+        ('amount_scaler', RobustScaler(), ['Amount']),  # Scale the log-transformed 'Amount'
+        ('hour_cyclical', cyclical_transformer, ['Hour'])
+    ], remainder='passthrough')
 
     X_train_transformed = preprocessor.fit_transform(X_train_smote)
     # Apply the transformation pipeline
-    X = X.drop(columns='Unnamed: 0')
     X_transformed = preprocessor.transform(X)
 
     # Convert back to DataFrame with proper column names
     columns = ['Time', 'Log_Amount', 'Hour_sin', 'Hour_cos'] + [col for col in X.columns if col not in ['Time', 'Amount', 'Hour']]
-    print(columns)
+
 
     X_transformed = pd.DataFrame(X_transformed, columns=columns)
 

@@ -16,7 +16,7 @@ if os.path.isfile('requirements_dev.txt'):
 
 
 setup(name='anomguard',
-      version="0.0.1",
+      version="1.0.0",
       description="creditcard fraud detection and Stock market anamolies detection",
       packages=find_packages(),
       install_requires=requirements,
