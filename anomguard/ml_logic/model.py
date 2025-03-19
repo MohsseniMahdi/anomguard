@@ -24,7 +24,8 @@ def initialize_logistic():
         """
         model = LogisticRegression(
             class_weight="balanced",
-            max_iter=1000,
+            max_iter=5000,
+            solver="saga",
             random_state=42)
 
         return model
