@@ -310,3 +310,9 @@ X_final, y_final = tomek.fit_resample(X_train_pca, y_train_smote)
 - ✖ If removing non-fraud samples reduces model performance, it may not be appropriate.
 
 In this specific scenario, Tomek Links did not remove any samples, as no overlapping non-fraud cases were detected. This result suggests the application of Tomek Links was harmless and serves as a validation step to confirm dataset integrity.
+
+
+
+
+- # [**Go to main page**](../README.md)
+
