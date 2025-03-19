@@ -1,17 +1,10 @@
 from anomguard.ml_logic.registry import load_model
 from anomguard.ml_logic.preprocessing import preprocessing_V2_features
 import pandas as pd
-import pickle
-def model_test():
-    with open('/home/mahdi/code/MohsseniMahdi/anomguard/models/models/20250318-151719PV2Mlogistic.h5', 'rb') as f:
-                    model = pickle.load(f)
-
-
-
-    X_pred = X_pred.drop(columns = 'Unnamed: 0')
-    
-    X_pred_transform = preprocessing_V2_features(X_pred)
    
+def model_test():
+    model = load_model()
+    X_pred = pd.read_csv('/home/berta/code/MohsseniMahdi/anomguard/anomguard/X_test.csv')
     y_pred  = model.predict(X_pred)
 
     return y_pred
