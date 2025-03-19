@@ -1,26 +1,16 @@
-# Credit Card Fraud Detection Project
-
-## Introduction
-Credit card fraud represents a major risk to both financial institutions and consumers, causing significant financial losses annually. Detecting fraudulent transactions accurately is essential to reducing these losses and preserving trust in financial systems. This project is focused on developing a machine learning model that can identify fraudulent credit card transactions effectively. The dataset used for this project is provided by Kaggle, offering a foundation for data analysis and model building.
+# Data Preprocessing
+Effective preprocessing is essential to address the class imbalance and prepare the data for modeling. The following steps were undertaken:
 
 ## Dataset Overview
 The dataset features credit card transactions made by European cardholders over a two-day period in September 2013. It contains 284,807 transactions, of which only 492 are fraudulent—approximately 0.172% of the data. This notable class imbalance presents challenges during model training and evaluation, requiring careful attention to ensure fair and reliable model performance.
 
 ## Feature Description
-**Time**: The time elapsed in seconds between each transaction and the first transaction in the dataset.
+**Time**: The time elapsed in seconds between each transaction and the first transaction in the dataset.<br>
+**V1** to **V28**: Principal components derived from a PCA transformation applied to the original features, anonymized for privacy reasons.<br>
+**Amount**: The transaction amount, which can provide insights and be utilized for cost-sensitive learning.<br>
+**Class**: The target variable, where 1 indicates a fraudulent transaction, and 0 indicates a legitimate transaction.<br>
 
-**V1** to **V28**: Principal components derived from a PCA transformation applied to the original features, anonymized for privacy reasons.
-
-**Amount**: The transaction amount, which can provide insights and be utilized for cost-sensitive learning.
-
-**Class**: The target variable, where 1 indicates a fraudulent transaction, and 0 indicates a legitimate transaction.
-
-## Data Preprocessing
-Effective preprocessing is essential to address the class imbalance and prepare the data for modeling. The following steps were undertaken:
-
-### Loading the Data
-
-The dataset was loaded using Pandas:
+## Loading the Data and manipulating the dataset
 
 ### **1. import pandas as pd**:
 The initial step involves loading the credit card transaction dataset from a CSV file into a pandas DataFrame named data1. The pd.read_csv() function is utilized for this purpose, reading the data from the specified file path '../raw_data/creditcard.csv'.
@@ -94,7 +84,7 @@ df.drop(columns=["Hour"], inplace=True)
 >> - Finally, df.drop(columns=["Hour"], inplace=True) removes the original 'Hour' feature, as its cyclical representation (Hour_sin and Hour_cos) now captures the relevant temporal information.
 >> - This cyclical transformation allows the model to properly understand the relationship between time and fraudulent transactions, as it encodes the proximity of the ends of the day.
 
-![Credit Card Fraud Detection](./images/Transaction_Count_by_Hour.png)
+![Credit Card Fraud Detection](../images/Transaction_Count_by_Hour.png)
 
 ### **5. Examining the distribution of the target variable to understand class imbalance**:
 >> - Next step snippet calculates and displays the count of each unique value in the 'Class' column of the DataFrame df. The 'Class' column represents the target variable, where 0 indicates a non-fraudulent transaction and 1 indicates a fraudulent transaction.
@@ -128,7 +118,7 @@ plt.title('Class Distributions \n (0: Not Fraud || 1: Fraud)', fontsize=12, colo
 >> - This part of the code generates a count plot using seaborn to visually represent the distribution of the 'Class' variable.
 sns.countplot('Class', data=df, palette=["red","blue"]) creates the count plot, with red representing non-fraudulent transactions (0) and blue representing fraudulent transactions (1).
 
-![Credit Card Fraud Detection](./images/Class_Distributions.png)
+![Credit Card Fraud Detection](../images/Class_Distributions.png)
 
 ### **6. Data Preparation: Feature and Target Separation and Train-Test Split**:
 >> - Following the analysis of the class distribution, the dataset is prepared for machine learning model training. The first step involves separating the features (independent variables) and the target variable (dependent variable).
@@ -188,7 +178,6 @@ print("\nClass distribution after SMOTE:\n", pd.Series(y_train_smote).value_coun
 
 This combined strategy ensures that the training data is both balanced and cleansed of noisy samples, resulting in a more accurate and reliable fraud detection model.
 
-test berta ....
 
 ### **8. Visualizing Class Distribution Post-SMOTE**
 
@@ -212,7 +201,7 @@ print('Not Fraud', round(y_train_smote.value_counts()[0]/len(y_train_smote) * 10
 print('Fraud', round(y_train_smote.value_counts()[1]/len(y_train_smote) * 100, 2))
 ```
 
-![Credit Card Fraud Detection](./images/Class_Distribution_After_SMOTE.png)
+![Credit Card Fraud Detection](../images/Class_Distribution_After_SMOTE.png)
 
 **Output:**
 ```
@@ -237,14 +226,14 @@ plt.title("Boxplot of PCA Features")
 plt.show()
 ```
 
-![Credit Card Fraud Detection](./images/Boxplot_of_PCA_Features.png)
+![Credit Card Fraud Detection](../images/Boxplot_of_PCA_Features.png)
 
 The resulting boxplot reveals the presence of outliers in several PCA features, which could potentially impact the performance of machine learning models.<br>
 To address the issue of outliers, Robust Scaling is applied to the PCA-transformed features. This scaling technique is less sensitive to outliers compared to standard scaling.
 
 The boxplot of the scaled features shows that the outliers have been mitigated, and the features are now on a more comparable scale. Robust Scaling helps to ensure that the model is not overly influenced by extreme values, leading to improved performance.
 
-![Credit Card Fraud Detection](./images/Boxplot_of_PCA_Features_After_Scaling.png)
+![Credit Card Fraud Detection](../images/Boxplot_of_PCA_Features_After_Scaling.png)
 
 After scaling the PCA features to ensure uniformity in range and robustness against outliers, it's equally important to address extreme values that might still skew the analysis or model performance. In this step, we introduce the Winsorization process, which offers a robust technique to handle outliers by capping extreme values instead of outright removing them.
 
@@ -259,7 +248,7 @@ The winsorize method, from the scipy.stats.mstats library, enables this transfor
 
 This adjustment aims to stabilize the dataset further, aligning it for reliable model training and validation.
 
-![Credit Card Fraud Detection](./images/Boxplot_of_PCA_Features_After_winsorize.png)
+![Credit Card Fraud Detection](../images/Boxplot_of_PCA_Features_After_winsorize.png)
 
 During the preprocessing stage, dealing with negative values in features is a crucial step to ensure compatibility with transformations like logarithmic scaling. Logarithmic transformation is particularly useful for reducing skewness and stabilizing the variance in data, but it requires all input values to be non-negative.
 
@@ -272,7 +261,7 @@ In this step, features V20 and V23, which contain negative values, are addressed
 
 This adjustment not only resolves issues related to negative values but also enhances the distribution of these features, preparing them for subsequent analysis or modeling steps.
 
-![Credit Card Fraud Detection](./images/Boxplot_of_PCA_Features_After_Logarithmic_transformation.png)
+![Credit Card Fraud Detection](../images/Boxplot_of_PCA_Features_After_Logarithmic_transformation.png)
 
 Also, as part of the data exploration process, it's critical to thoroughly examine the distribution of important features. The Amount feature, representing transaction amounts, is particularly significant for understanding patterns and potential anomalies in the dataset.
 
@@ -280,13 +269,13 @@ In this step, we utilize a boxplot and histogram to visualize the distribution o
 
 Identifying and addressing these outliers will be pivotal in subsequent preprocessing steps to ensure the reliability and effectiveness of the model.
 
-![Credit Card Fraud Detection](./images/Boxplot_of_Transaction_Amounts.png)
+![Credit Card Fraud Detection](../images/Boxplot_of_Transaction_Amounts.png)
 
 To address the previously identified issue of outliers in the Amount feature, a transformation step is applied to improve the data's distribution and minimize the influence of extreme values. The log1p function is particularly effective in this context, as it applies a logarithmic transformation while handling zero values gracefully by adding 1 to each data point before taking the natural logarithm.
 
 By transforming the Amount feature with log1p, the skewness of the distribution is reduced, resulting in a more normalized dataset. This preprocessing step further prepares the feature for use in the modeling process, ensuring that the model's performance is not adversely affected by the presence of large variances or outliers.
 
-![Credit Card Fraud Detection](./images/Boxplot_of_Transaction_Amounts_after_Log_Transformation.png)
+![Credit Card Fraud Detection](../images/Boxplot_of_Transaction_Amounts_after_Log_Transformation.png)
 
 Building on the earlier steps to preprocess the Amount feature, we combine scaling and outlier handling to ensure this variable contributes effectively to the model. The following code applies these transformations sequentially:
 
@@ -299,7 +288,7 @@ First, the Amount feature is standardized using the StandardScaler. This method 
 
 Subsequently, the winsorize function is utilized to cap the extreme values in the Amount feature. By setting limits at 1% on both ends, it mitigates the impact of outliers while retaining as much of the dataset's original structure as possible. This step ensures that the transformed Amount feature remains robust and suitable for further analysis or modeling tasks.
 
-![Credit Card Fraud Detection](./images/Boxplot_of_Transaction_Amounts_after_winsorize.png)
+![Credit Card Fraud Detection](../images/Boxplot_of_Transaction_Amounts_after_winsorize.png)
 
 After applying SMOTE to balance the dataset, it's essential to address potential noise caused by overlapping samples in the majority class. This step is crucial for refining the dataset and ensuring the model's ability to distinguish between fraud and non-fraud cases effectively.
 
@@ -323,86 +312,7 @@ X_final, y_final = tomek.fit_resample(X_train_pca, y_train_smote)
 In this specific scenario, Tomek Links did not remove any samples, as no overlapping non-fraud cases were detected. This result suggests the application of Tomek Links was harmless and serves as a validation step to confirm dataset integrity.
 
 
-Model Training and Evaluation
-To detect fraudulent transactions effectively, we employed two machine learning models: Logistic Regression and XGBoost. Given the severe class imbalance, special techniques were used to enhance model performance.
-
-Logistic Regression
-Logistic Regression is a simple yet powerful model for binary classification. To address the class imbalance, the class_weight="balanced" parameter was used, ensuring the minority class (fraudulent transactions) received appropriate weight. The model was trained with 1000 iterations for optimal convergence.
-
-XGBoost Classifier
-XGBoost is a high-performance gradient boosting algorithm known for its efficiency in handling imbalanced datasets. The scale_pos_weight parameter was used to balance fraud detection, and the binary:logistic objective was chosen for probability-based predictions.
-
-Evaluation Metrics
-Since fraud detection requires prioritizing correctly identifying fraudulent cases, we used:
-
-Recall: Measures the percentage of fraudulent transactions correctly identified. Higher recall reduces false negatives.
-Precision-Recall AUC (PR AUC): Evaluates model performance on imbalanced datasets, focusing on fraud detection rather than overall accuracy.
-Results
-Logistic Regression provided the best performance, achieving a high recall score while maintaining strong precision-recall balance. This indicates its effectiveness in detecting fraudulent transactions without excessive false positives.
 
 
+- # [**Go to main page**](../README.md)
 
-[> **Data Preprocessing:**](./README_Files/Preprocessing.md)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Project Name
-- Document your project here
-- Description
-- Data used
-- Where your API can be accessed
-- ...
-
-# API
-Document main API endpoints here
-
-# Setup instructions
-Document here for users who want to setup the package locally
-
-# Usage
-Document main functionalities of the package here
-
-
-# installation
-
-make install requirments
-make run preprocess
