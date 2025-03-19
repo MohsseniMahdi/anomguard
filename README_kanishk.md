@@ -17,7 +17,6 @@ Ensure you have the following installed:
      Installs or updates the package.
 
 
-
 ## Cleaning
 
   1. make clean
@@ -25,10 +24,9 @@ Ensure you have the following installed:
 
 ## Model Training and Cloud Storage
 
-  1. make train_model
+  1. make run_preprocces
      Trains the machine learning model. In our case, model defined on .env file with MODEL_VERSION variable.
-  2. make save_model
-     make save_modelSaves the trained model to a specified cloud storage location or local location.
+     Saves the trained model to a specified cloud storage location or local location.
 
 ## Containerization and Deployment
   1. make build_docker
