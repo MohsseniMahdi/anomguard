@@ -107,12 +107,12 @@ def preprocessing_V2(data):
     X = data.drop(columns = ['Class'])
     y = data['Class']
 
-    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.25, random_state=42)
-    X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.25)
+    X_test, X_val, y_test, y_val = train_test_split(X_temp, y_temp, test_size=0.5)
 
 
     # Apply SMOTE to the training set
-    smote = SMOTE(sampling_strategy=0.2, random_state=42)  # Adjust ratio if needed
+    smote = SMOTE(sampling_strategy=0.2)  # Adjust ratio if needed
     X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
 
     # Define function for log transformation
