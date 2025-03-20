@@ -14,3 +14,6 @@ Recall: Measures the percentage of fraudulent transactions correctly identified.
 Precision-Recall AUC (PR AUC): Evaluates model performance on imbalanced datasets, focusing on fraud detection rather than overall accuracy.
 Results
 Logistic Regression provided the best performance, achieving a high recall score while maintaining strong precision-recall balance. This indicates its effectiveness in detecting fraudulent transactions without excessive false positives.
+
+
+- # [**Go to main page**](../README.md)
