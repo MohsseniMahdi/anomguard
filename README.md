@@ -29,7 +29,9 @@ In addition to its technical contributions, this project serves as a testament t
 
 # **Table of Contents**
 
-> [**1. Data Preprocessing:**](./README_Files/Preprocessing.md)
+> [**1. Data Preprocessing:**](./README_Files/Preprocessing.md)  <br>
+> [**2. Modeling:**](./README_Files/README_Berta.md)  <br>
+> [**3. Packaging:**](./README_Files/README_kanishk.md)  <br>
 
 
 
