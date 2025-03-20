@@ -29,7 +29,7 @@ In addition to its technical contributions, this project serves as a testament t
 
 # **Table of Contents**
 
-[> **1. Data Preprocessing:**](./README_Files/Preprocessing.md)
+> [**1. Data Preprocessing:**](./README_Files/Preprocessing.md)
 
 
 
