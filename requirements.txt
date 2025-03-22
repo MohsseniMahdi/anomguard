@@ -24,3 +24,7 @@ uvicorn
 imblearn
 pyarrow
 colorama
+imblearn
+
+xgboost == 2.1.4
+python-multipart
